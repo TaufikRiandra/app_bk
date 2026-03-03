@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `absen_siswa` (
   CONSTRAINT `absen_siswa_ibfk_1` FOREIGN KEY (`id_siswa`) REFERENCES `siswa` (`id_siswa`)
 ) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table bk_app.absen_siswa: ~56 rows (approximately)
+-- Dumping data for table bk_app.absen_siswa: ~5 rows (approximately)
 INSERT INTO `absen_siswa` (`id_absen`, `id_siswa`, `tanggal`, `keterangan`) VALUES
 	(55, 30, '2026-01-01', 'Hadir'),
 	(56, 31, '2026-01-01', 'Hadir'),
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `guru_bk` (
   CONSTRAINT `fk_guru_bk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id_user`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table bk_app.guru_bk: ~1 rows (approximately)
+-- Dumping data for table bk_app.guru_bk: ~0 rows (approximately)
 INSERT INTO `guru_bk` (`id_guru_bk`, `user_id`, `nip`, `nama`, `no_telp`, `foto`, `created_at`) VALUES
 	(1, NULL, '111', 'test_bk', '08111', '/frontend/assets/uploads/guru_bk/guru_bk_1771912729_3f8edca4.png', '2026-02-24 05:58:49');
 
@@ -174,24 +174,28 @@ CREATE TABLE IF NOT EXISTS `layanan_mediasi` (
   `id_mediasi` int NOT NULL AUTO_INCREMENT,
   `tanggal` date NOT NULL,
   `id_guru_bk` int NOT NULL,
-  `nama_pihak_1` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `kelas_pihak_1` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `masalah_pihak_1` text COLLATE utf8mb4_unicode_ci,
-  `nama_pihak_2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `kelas_pihak_2` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `masalah_pihak_2` text COLLATE utf8mb4_unicode_ci,
-  `hasil_mediasi` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `keterangan` text COLLATE utf8mb4_unicode_ci,
-  `foto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nama_pihak_1` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `kelas_pihak_1` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `masalah_pihak_1` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `nama_pihak_2` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `kelas_pihak_2` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `masalah_pihak_2` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `hasil_mediasi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `keterangan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `foto` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `diubah_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_mediasi`),
   KEY `id_guru_bk` (`id_guru_bk`),
   KEY `tanggal` (`tanggal`),
   CONSTRAINT `layanan_mediasi_ibfk_1` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table bk_app.layanan_mediasi: ~0 rows (approximately)
+INSERT INTO `layanan_mediasi` (`id_mediasi`, `tanggal`, `id_guru_bk`, `nama_pihak_1`, `kelas_pihak_1`, `masalah_pihak_1`, `nama_pihak_2`, `kelas_pihak_2`, `masalah_pihak_2`, `hasil_mediasi`, `keterangan`, `foto`, `dibuat_pada`, `diubah_pada`) VALUES
+	(1, '2026-03-03', 1, 'test', 'test', 'test', 'test', 'test', 'test', 'test', '', '69a675412e10b_1772516673.jpg', '2026-03-03 05:44:33', '2026-03-03 05:44:33'),
+	(2, '2026-03-03', 1, 'a', 'a', 'a', 'a', 'a', 'a', 'a', '', '', '2026-03-03 06:14:52', '2026-03-03 06:14:52'),
+	(3, '2026-03-03', 1, 'b', 'b', 'b', 'b', 'b', 'b', 'b', '', '', '2026-03-03 06:16:30', '2026-03-03 06:17:07');
 
 -- Dumping structure for table bk_app.penilaian
 CREATE TABLE IF NOT EXISTS `penilaian` (
@@ -295,7 +299,7 @@ CREATE TABLE IF NOT EXISTS `siswa` (
   PRIMARY KEY (`id_siswa`)
 ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table bk_app.siswa: ~28 rows (approximately)
+-- Dumping data for table bk_app.siswa: ~0 rows (approximately)
 INSERT INTO `siswa` (`id_siswa`, `nis`, `nama_siswa`, `jk`, `tempat_lahir`, `tgl_lahir`, `agama`, `sekolah_asal`, `kelas`, `jurusan`, `no_hp`, `alamat`, `nama_ortu`, `no_hp_ortu`) VALUES
 	(30, '7A-001', 'a', 'L', 'test', '2007-02-02', 'Islam', 'test', '7A', NULL, '08123', 'test', 'test', '08123'),
 	(31, '7A-002', 'b', 'L', '', '2024-09-02', '', '', '7A', NULL, '', '', '', ''),
