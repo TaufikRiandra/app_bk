@@ -63,7 +63,7 @@ html, body {
 
 /* Smooth transitions */
 a, button, input, select, textarea, .interactive {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* transitions removed */
 }
 
 /* Scrollbar Styling */
@@ -153,7 +153,6 @@ a, button, input, select, textarea, .interactive {
 
 .header-nav a:hover {
   background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
 }
 
 .theme-toggle {
@@ -222,12 +221,11 @@ a, button, input, select, textarea, .interactive {
   width: 3px;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   transform: translateX(-3px);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .sidebar-menu a:hover::before,
 .sidebar-menu a.active::before {
-  transform: translateX(0);
+  /* transform removed */
 }
 
 .sidebar-menu a:hover {
@@ -247,12 +245,9 @@ a, button, input, select, textarea, .interactive {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-4px);
   border-color: var(--primary);
 }
 
@@ -292,7 +287,6 @@ table thead th {
 
 table tbody tr {
   border-bottom: 1px solid var(--border);
-  transition: all 0.2s ease;
 }
 
 table tbody tr:hover {
@@ -318,7 +312,6 @@ table tbody td i {
   cursor: pointer;
   padding: 0.75rem;
   border-radius: 6px;
-  transition: all 0.2s ease;
   position: relative;
 }
 
@@ -334,7 +327,6 @@ table tbody td i {
   margin-left: 0.5rem;
   color: var(--text-lighter);
   opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
 .editable-cell:hover::after {
@@ -402,7 +394,6 @@ textarea {
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -414,12 +405,11 @@ textarea {
 }
 
 .btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  /* animations removed */
 }
 
 .btn-primary:active {
-  transform: translateY(-1px);
+  /* animations removed */
 }
 
 .btn-secondary {
@@ -431,7 +421,6 @@ textarea {
 .btn-secondary:hover {
   background: var(--primary);
   color: #FFFFFF;
-  transform: translateY(-2px);
 }
 
 .btn-success {
@@ -441,8 +430,7 @@ textarea {
 }
 
 .btn-success:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  /* animations removed */
 }
 
 .btn-danger {
@@ -452,8 +440,7 @@ textarea {
 }
 
 .btn-danger:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  /* animations removed */
 }
 
 .btn-info {
@@ -463,8 +450,7 @@ textarea {
 }
 
 .btn-info:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  /* animations removed */
 }
 
 .btn-sm {
@@ -485,7 +471,6 @@ button {
   border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   box-shadow: var(--shadow-md);
   display: inline-flex;
   align-items: center;
@@ -493,12 +478,11 @@ button {
 }
 
 button:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  /* animations removed */
 }
 
 button:active {
-  transform: translateY(-1px);
+  /* animations removed */
 }
 
 /* ============ ALERTS ============ */
@@ -634,7 +618,6 @@ button:active {
   padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
   background: var(--bg-secondary);
 }
 
@@ -828,12 +811,9 @@ button:active {
   padding: 2rem;
   text-align: center;
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .feature:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
   border-color: var(--primary);
 }
 
@@ -877,13 +857,11 @@ table i {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
   font-weight: 600;
 }
 
 .btn-delete:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  /* animations removed */
 }
 
 .btn-edit {
@@ -896,13 +874,11 @@ table i {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
   font-weight: 600;
 }
 
 .btn-edit:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  /* animations removed */
 }
 
 .action-cell {

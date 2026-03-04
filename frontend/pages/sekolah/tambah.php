@@ -1,16 +1,16 @@
 <?php
 session_start();
 if(!isset($_SESSION['login'])){
-    header("Location: ../auth/login.php");
+    header("Location: ../../auth/login.php");
     exit;
 }
 // Proteksi: hanya admin yang bisa tambah sekolah
 if(isset($_SESSION['role']) && $_SESSION['role'] !== 'admin'){
-    header("Location: /frontend/dashboard.php");
+    header("Location: ../../dashboard.php");
     exit;
 }
-include "../layouts/header.php";
-include "../layouts/sidebar.php";
+include "../../layouts/header.php";
+include "../../layouts/sidebar.php";
 ?>
 
 <section class="card" style="max-width:600px;margin:0 auto">
@@ -19,7 +19,7 @@ include "../layouts/sidebar.php";
 		<p style="color:var(--text-light);margin:0">Isi form di bawah untuk menambahkan sekolah baru ke sistem</p>
 	</div>
 
-	<form action="../../backend/sekolah/create.php" method="POST">
+	<form action="../../../backend/sekolah/create.php" method="POST">
 		<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 			<div>
 				<label for="pemerintah">Pemerintah</label>
@@ -67,10 +67,10 @@ include "../layouts/sidebar.php";
 		
 		<div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap">
 			<button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Simpan Data</button>
-			<a href="../dashboard.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
+			<a href="../../dashboard.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
 		</div>
 	</form>
 </section>
 
-<?php include "../layouts/footer.php"; ?>
+<?php include "../../layouts/footer.php"; ?>
 

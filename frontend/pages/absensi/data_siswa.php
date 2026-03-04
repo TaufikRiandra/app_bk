@@ -6,7 +6,7 @@ $kelas_terpilih = isset($_GET['kelas']) ? htmlspecialchars($_GET['kelas']) : nul
 // Get database connection from global
 $conn = $GLOBALS['conn'] ?? null;
 if(!$conn) {
-	include "../../backend/config/database.php";
+	include "../../../backend/config/database.php";
 }
 
 // Get school data
@@ -46,11 +46,14 @@ if($kelas_terpilih) {
 					foreach($kelas_7 as $k):
 						$is_selected = ($kelas_terpilih === $k) ? true : false;
 						$btn_style = $is_selected 
-							? 'background:var(--brand);color:white' 
-							: 'background:var(--bg-light);color:var(--text-dark);border:1px solid var(--border)';
+							? 'background:var(--brand);color:var(--text);border:2px solid #4F41E8;box-shadow:inset 0 0 0 1px rgba(91, 78, 255, 0.3), 0 0 8px rgba(91, 78, 255, 0.4)' 
+							: 'background:var(--bg-light);color:var(--text);border:1px solid var(--border)';
 				?>
-					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;border:none;font-size:0.9rem" title="Kelas <?= $k ?>">
+					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
 						<?= $k ?>
+						<?php if($is_selected): ?>
+							<i class="fas fa-check" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--brand)"></i>
+						<?php endif; ?>
 					</button>
 				<?php endforeach; ?>
 			</div>
@@ -65,11 +68,14 @@ if($kelas_terpilih) {
 					foreach($kelas_8 as $k):
 						$is_selected = ($kelas_terpilih === $k) ? true : false;
 						$btn_style = $is_selected 
-							? 'background:var(--brand);color:white' 
-							: 'background:var(--bg-light);color:var(--text-dark);border:1px solid var(--border)';
+							? 'background:var(--brand);color:var(--text);border:2px solid #4F41E8;box-shadow:inset 0 0 0 1px rgba(91, 78, 255, 0.3), 0 0 8px rgba(91, 78, 255, 0.4)' 
+							: 'background:var(--bg-light);color:var(--text);border:1px solid var(--border)';
 				?>
-					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;border:none;font-size:0.9rem" title="Kelas <?= $k ?>">
+					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
 						<?= $k ?>
+						<?php if($is_selected): ?>
+							<i class="fas fa-check" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--brand)"></i>
+						<?php endif; ?>
 					</button>
 				<?php endforeach; ?>
 			</div>
@@ -84,11 +90,14 @@ if($kelas_terpilih) {
 					foreach($kelas_9 as $k):
 						$is_selected = ($kelas_terpilih === $k) ? true : false;
 						$btn_style = $is_selected 
-							? 'background:var(--brand);color:white' 
-							: 'background:var(--bg-light);color:var(--text-dark);border:1px solid var(--border)';
+							? 'background:var(--brand);color:var(--text);border:2px solid #4F41E8;box-shadow:inset 0 0 0 1px rgba(91, 78, 255, 0.3), 0 0 8px rgba(91, 78, 255, 0.4)' 
+							: 'background:var(--bg-light);color:var(--text);border:1px solid var(--border)';
 				?>
-					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;border:none;font-size:0.9rem" title="Kelas <?= $k ?>">
+					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
 						<?= $k ?>
+						<?php if($is_selected): ?>
+							<i class="fas fa-check" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--brand)"></i>
+						<?php endif; ?>
 					</button>
 				<?php endforeach; ?>
 			</div>
@@ -125,7 +134,7 @@ if($kelas_terpilih) {
 					</form>
 
 					<div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap">
-						<button onclick="simpanSiswa()" style="padding:0.75rem 2rem;background:linear-gradient(135deg, var(--brand) 0%, #5b21b6 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;box-shadow:0 4px 12px rgba(91, 78, 255, 0.3)">
+					<button onclick="simpanSiswa()" style="padding:0.75rem 2rem;background:linear-gradient(135deg, var(--brand) 0%, #5b21b6 100%);color:var(--text);border:none;border-radius:6px;cursor:pointer;font-weight:600;box-shadow:0 4px 12px rgba(91, 78, 255, 0.3)">
 							<i class="fas fa-<?= $has_exist_data ? 'sync-alt' : 'save' ?>"></i> <?= $has_exist_data ? 'Update Data' : 'Simpan Data' ?>
 						</button>
 						<button onclick="kosongkanForm()" style="padding:0.75rem 2rem;background:var(--bg-light);color:var(--text-dark);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
@@ -169,7 +178,7 @@ if($kelas_terpilih) {
 		}
 
 		// Send to backend
-		fetch('../../backend/absensi/save_siswa.php', {
+		fetch('../../../backend/pages/save_siswa.php', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

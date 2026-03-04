@@ -21,7 +21,7 @@ $all_kelas = ['7A', '7B', '7C', '7D', '7E', '7F', '8A', '8B', '8C', '8D', '8E', 
 if(!$kelas_terpilih): ?>
 	<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.5rem">
 		<?php foreach($all_kelas as $kelas): ?>
-			<button onclick="window.history.pushState({}, '', '?tab=rekap_absen&kelas=<?= $kelas ?>&semester=');window.location.reload()" style="padding:2rem;background:linear-gradient(135deg, var(--brand) 0%, #5b21b6 100%);color:white;border:none;border-radius:12px;cursor:pointer;font-size:1.2rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:0.75rem">
+			<button onclick="window.history.pushState({}, '', '?tab=rekap_absen&kelas=<?= $kelas ?>&semester=');window.location.reload()" onmouseover="this.style.boxShadow='0 8px 24px rgba(91, 78, 255, 0.4)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.transform='translateY(0)'" style="padding:2rem;background:linear-gradient(135deg, var(--brand) 0%, #5b21b6 100%);color:var(--text);border:none;border-radius:12px;cursor:pointer;font-size:1.2rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:0.75rem;transition:all 0.3s ease">
 				<i class="fas fa-chart-pie"></i> Kelas <?= $kelas ?>
 			</button>
 		<?php endforeach; ?>
@@ -32,7 +32,7 @@ if(!$kelas_terpilih): ?>
 	?>
 	<div style="background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden">
 		<!-- Header -->
-		<div style="background:var(--brand);color:white;padding:2rem;text-align:center">
+		<div style="background:var(--brand);color:var(--text);padding:2rem;text-align:center">
 			<h2 style="margin:0 0 0.5rem 0;font-size:1.5rem">REKAP ABSEN KELAS <?= htmlspecialchars($kelas_terpilih) ?></h2>
 			<p style="margin:0.5rem 0 0 0;font-size:0.95rem"><?= htmlspecialchars($nama_sekolah) ?></p>
 		</div>
@@ -71,10 +71,10 @@ if(!$kelas_terpilih): ?>
 				<thead>
 					<!-- Row 1: Bulan -->
 					<tr style="border-bottom:1px solid var(--border)">
-						<th rowspan="2" style="padding:0.5rem;text-align:center;font-weight:600;border-right:1px solid var(--border);min-width:40px;background:var(--brand);color:white">NO</th>
-						<th rowspan="2" style="padding:0.5rem;text-align:left;font-weight:600;border-right:1px solid var(--border);min-width:120px;background:var(--brand);color:white">NAMA</th>
+				<th rowspan="2" style="padding:0.5rem;text-align:center;font-weight:600;border-right:1px solid var(--border);min-width:40px;background:var(--brand);color:var(--text)">NO</th>
+				<th rowspan="2" style="padding:0.5rem;text-align:left;font-weight:600;border-right:1px solid var(--border);min-width:120px;background:var(--brand);color:var(--text)">NAMA</th>
 						<?php foreach($months as $bulan_kode => $bulan_nama): ?>
-							<th colspan="6" style="padding:0.5rem;text-align:center;font-weight:600;border-right:1px solid var(--border);background:var(--brand);color:white">
+							<th colspan="6" style="padding:0.5rem;text-align:center;font-weight:600;border-right:1px solid var(--border);background:var(--brand);color:var(--text)">
 								<?= htmlspecialchars($bulan_nama) ?>
 							</th>
 						<?php endforeach; ?>
@@ -85,7 +85,7 @@ if(!$kelas_terpilih): ?>
 							$status_codes = ['H', 'I', 'S', 'A', 'C', 'T'];
 							foreach($status_codes as $code):
 						?>
-							<th style="padding:0.5rem;text-align:center;font-weight:600;border-right:1px solid var(--border);min-width:35px;background:var(--brand);color:white">
+						<th style="padding:0.5rem;text-align:center;font-weight:600;border-right:1px solid var(--border);min-width:35px;background:var(--brand);color:var(--text)">
 								<?= $code ?>
 							</th>
 						<?php endforeach; endforeach; ?>
@@ -152,10 +152,10 @@ if(!$kelas_terpilih): ?>
 
 		<!-- Tombol Export & Kembali -->
 		<div style="padding:1.5rem;text-align:center;border-top:1px solid var(--border);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
-			<button onclick="exportToExcel()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg, #27ae60 0%, #229954 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(39, 174, 96, 0.3)">
+			<button onclick="exportToExcel()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg, #27ae60 0%, #229954 100%);color:var(--text);border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(39, 174, 96, 0.3)">
 				<i class="fas fa-file-excel"></i> Export Excel
 			</button>
-			<button onclick="exportToPDF()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(231, 76, 60, 0.3)">
+			<button onclick="exportToPDF()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);color:var(--text);border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(231, 76, 60, 0.3)">
 				<i class="fas fa-file-pdf"></i> Export PDF
 			</button>
 			<button onclick="window.history.pushState({}, '', '?tab=rekap_absen');window.location.reload()" style="padding:0.75rem 1.5rem;background:var(--bg-light);color:var(--text-dark);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08)">

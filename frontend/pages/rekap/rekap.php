@@ -26,8 +26,8 @@ $GLOBALS['conn'] = $conn;
 		<a href="?tab=kegiatan_harian" style="padding:0.75rem 1.5rem;text-decoration:none;display:flex;align-items:center;gap:0.5rem;color:<?= $tab === 'kegiatan_harian' ? 'var(--brand)' : 'var(--text-light)' ?>;background-color:<?= $tab === 'kegiatan_harian' ? '#E8E4FF' : 'transparent' ?>;border-bottom:3px solid <?= $tab === 'kegiatan_harian' ? 'var(--brand)' : 'transparent' ?>;cursor:pointer;font-weight:<?= $tab === 'kegiatan_harian' ? '600' : 'normal' ?>;border-radius:4px 4px 0 0">
 			<i class="fas fa-calendar-check"></i> Kegiatan Harian
 		</a>
-		<a href="?tab=konseling" style="padding:0.75rem 1.5rem;text-decoration:none;display:flex;align-items:center;gap:0.5rem;color:<?= $tab === 'konseling' ? 'var(--brand)' : 'var(--text-light)' ?>;background-color:<?= $tab === 'konseling' ? '#E8E4FF' : 'transparent' ?>;border-bottom:3px solid <?= $tab === 'konseling' ? 'var(--brand)' : 'transparent' ?>;cursor:pointer;font-weight:<?= $tab === 'konseling' ? '600' : 'normal' ?>;border-radius:4px 4px 0 0">
-			<i class="fas fa-handshake"></i> Konseling
+		<a href="?tab=rekap_absen" style="padding:0.75rem 1.5rem;text-decoration:none;display:flex;align-items:center;gap:0.5rem;color:<?= $tab === 'rekap_absen' ? 'var(--brand)' : 'var(--text-light)' ?>;background-color:<?= $tab === 'rekap_absen' ? '#E8E4FF' : 'transparent' ?>;border-bottom:3px solid <?= $tab === 'rekap_absen' ? 'var(--brand)' : 'transparent' ?>;cursor:pointer;font-weight:<?= $tab === 'rekap_absen' ? '600' : 'normal' ?>;border-radius:4px 4px 0 0">
+			<i class="fas fa-handshake"></i> Absen Siswa
 		</a>
 		<a href="?tab=layanan_mediasi" style="padding:0.75rem 1.5rem;text-decoration:none;display:flex;align-items:center;gap:0.5rem;color:<?= $tab === 'layanan_mediasi' ? 'var(--brand)' : 'var(--text-light)' ?>;background-color:<?= $tab === 'layanan_mediasi' ? '#E8E4FF' : 'transparent' ?>;border-bottom:3px solid <?= $tab === 'layanan_mediasi' ? 'var(--brand)' : 'transparent' ?>;cursor:pointer;font-weight:<?= $tab === 'layanan_mediasi' ? '600' : 'normal' ?>;border-radius:4px 4px 0 0">
 			<i class="fas fa-medkit"></i> Layanan Mediasi
@@ -38,8 +38,8 @@ $GLOBALS['conn'] = $conn;
 	<div class="card">
 		<?php if($tab === 'kegiatan_harian'): ?>
 			<?php include 'kegiatan_harian_content.php'; ?>
-		<?php elseif($tab === 'konseling'): ?>
-			<?php include 'konseling_content.php'; ?>
+		<?php elseif($tab === 'rekap_absen'): ?>
+			<?php include '../absensi/rekap_absen.php'; ?>
 		<?php elseif($tab === 'layanan_mediasi'): ?>
 			<?php include 'layanan_mediasi_content.php'; ?>
 		<?php endif; ?>

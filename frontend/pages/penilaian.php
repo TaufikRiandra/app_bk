@@ -10,7 +10,6 @@ include '../../backend/config/database.php';
 include '../layouts/header.php';
 include '../layouts/sidebar.php';
 
-// Get all unique kelas from siswa table
 $kelas_query = "SELECT DISTINCT kelas FROM siswa WHERE kelas IS NOT NULL AND kelas != '' ORDER BY kelas";
 $kelas_result = mysqli_query($conn, $kelas_query);
 $kelas_list = [];
@@ -18,693 +17,560 @@ while ($row = mysqli_fetch_assoc($kelas_result)) {
     $kelas_list[] = $row['kelas'];
 }
 
-// Get school info
 $school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
 $school = mysqli_fetch_assoc($school_result);
 $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
 ?>
 
-<div class="content" style="max-width: 1600px; margin: 0 auto; padding: 20px;">
-    <!-- Header Section -->
-    <div style="background-color: #4472C4; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h2 style="margin: 0 0 10px 0; font-size: 18px;">PENILAIAN SISWA</h2>
-        <p style="margin: 0 0 5px 0; font-size: 14px;">Masukkan nilai tugas siswa</p>
-        <p style="margin: 0; font-size: 13px; opacity: 0.9;"><?= htmlspecialchars($school_name) ?></p>
-    </div>
+<div style="max-width:1600px; margin:0 auto; padding:20px; font-family:'Segoe UI',sans-serif;">
 
-    <!-- Tab Navigation -->
-    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd;">
-        <button onclick="switchTab('generate')" id="tab-generate" style="background-color: #4472C4; color: white; border: none; padding: 12px 20px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 14px;">
-            🆕 Generate Baru
+  <!-- Page Header -->
+  <div style="background:linear-gradient(135deg,#4472C4 0%,#2d5aad 100%); color:white; padding:20px 24px; border-radius:10px; margin-bottom:24px; box-shadow:0 4px 16px rgba(68,114,196,0.25);">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="background:rgba(255,255,255,0.2); border-radius:8px; width:38px; height:38px; display:flex; align-items:center; justify-content:center;">
+        <i class="fas fa-star" style="font-size:1rem;"></i>
+      </div>
+      <h2 style="margin:0; font-size:1.3rem; font-weight:700;">PENILAIAN SISWA</h2>
+    </div>
+    <p style="margin:0 0 3px 0; font-size:13px; opacity:0.85;">Masukkan nilai tugas siswa</p>
+    <p style="margin:0; font-size:12px; opacity:0.7;"><?= htmlspecialchars($school_name) ?></p>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div style="display:flex; gap:0; margin-bottom:24px; background:#f1f5f9; border-radius:10px; padding:5px;">
+    <button onclick="switchTab('generate')" id="tab-generate"
+      style="flex:1; border:none; padding:11px 20px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13.5px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; background:#4472C4; color:white; box-shadow:0 2px 8px rgba(68,114,196,0.3);">
+      <i class="fas fa-plus-circle"></i> Generate Baru
+    </button>
+    <button onclick="switchTab('tersimpan')" id="tab-tersimpan"
+      style="flex:1; border:none; padding:11px 20px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13.5px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; background:transparent; color:#64748b;">
+      <i class="fas fa-save"></i> Penilaian Tersimpan
+    </button>
+  </div>
+
+  <!-- ============ GENERATE TAB ============ -->
+  <div id="generate-tab">
+
+    <!-- Filter Bar -->
+    <div style="background:white; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 1px 4px rgba(0,0,0,0.08); border:1px solid #e8edf2;">
+      <div style="display:grid; grid-template-columns:1fr 1fr 140px; gap:15px; align-items:flex-end;">
+        <div>
+          <label style="display:block; margin-bottom:7px; font-weight:600; color:#374151; font-size:13px;">
+            <i class="fas fa-chalkboard" style="color:#4472C4; margin-right:5px;"></i> Pilih Kelas
+          </label>
+          <select id="kelasSelect" style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:13px; color:#374151; background:white;">
+            <option value="">-- Pilih Kelas --</option>
+            <?php foreach ($kelas_list as $kls): ?>
+              <option value="<?= htmlspecialchars($kls) ?>"><?= htmlspecialchars($kls) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; margin-bottom:7px; font-weight:600; color:#374151; font-size:13px;">
+            <i class="fas fa-tasks" style="color:#4472C4; margin-right:5px;"></i> Jumlah Tugas <span style="color:#ef4444;">*</span>
+          </label>
+          <input type="number" id="jumlahTugas" min="1" max="50" value="5"
+            style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:13px; color:#374151; box-sizing:border-box;">
+        </div>
+        <button onclick="generateTable()"
+          style="background:#4472C4; color:white; border:none; padding:10px 20px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:center; gap:7px; box-shadow:0 2px 8px rgba(68,114,196,0.25);">
+          <i class="fas fa-search"></i> Generate
         </button>
-        <button onclick="switchTab('tersimpan')" id="tab-tersimpan" style="background-color: transparent; color: #666; border: none; padding: 12px 20px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 14px;">
-            💾 Penilaian Tersimpan
+      </div>
+    </div>
+
+    <!-- Table Container -->
+    <div id="tableContainer" style="display:none; background:white; padding:20px; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.08); border:1px solid #e8edf2; overflow-x:auto;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:15px; color:#1e293b;">
+          <i class="fas fa-table" style="color:#4472C4; margin-right:6px;"></i>
+          Penilaian <span id="kelasLabel" style="color:#4472C4;"></span>
+          &mdash; <span id="siswaCount" style="color:#4472C4;">0</span> siswa
+        </h3>
+        <div style="background:#f8fafc; padding:6px 12px; border-radius:6px; font-size:12px; color:#64748b; border:1px solid #e2e8f0;">
+          <i class="fas fa-clipboard-list" style="margin-right:5px;"></i>
+          Jumlah Tugas: <strong id="infoJumlahTugas" style="color:#374151;">5</strong>
+        </div>
+      </div>
+
+      <!-- Export Buttons -->
+      <div id="exportButtons" style="display:flex; gap:8px; margin-bottom:14px;"></div>
+
+      <hr style="margin:14px 0; border:none; border-top:1px solid #e8edf2;">
+
+      <table id="tabelPenilaian" style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead id="tabelHead"></thead>
+        <tbody id="tabelBody"></tbody>
+      </table>
+
+      <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button onclick="simpanSemualNilai()"
+          style="background:#22c55e; color:white; border:none; padding:11px 26px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:7px; box-shadow:0 2px 8px rgba(34,197,94,0.25);">
+          <i class="fas fa-save"></i> Simpan Semua Nilai
         </button>
-    </div>
+        <button onclick="resetTable()"
+          style="background:#94a3b8; color:white; border:none; padding:11px 26px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:7px;">
+          <i class="fas fa-undo"></i> Reset
+        </button>
+      </div>
 
-    <!-- GENERATE TAB -->
-    <div id="generate-tab" style="display: block;">
-    <div style="background-color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: grid; grid-template-columns: 1fr 1fr 150px; gap: 15px; align-items: flex-end;">
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
-                    Pilih Kelas
-                </label>
-                <select id="kelasSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                    <option value="">-- Pilih Kelas --</option>
-                    <?php foreach ($kelas_list as $kls): ?>
-                        <option value="<?= htmlspecialchars($kls) ?>"><?= htmlspecialchars($kls) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
-                    Jumlah Tugas <span style="color: red;">*</span>
-                </label>
-                <input type="number" id="jumlahTugas" min="1" max="50" value="5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-            </div>
-            <button onclick="generateTable()" style="background-color: #4472C4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                🔍 Generate
-            </button>
-        </div>
-    </div>
-
-    <!-- Table Section -->
-    <div id="tableContainer" style="display: none; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
-        <div style="margin-bottom: 15px;">
-            <h3 style="margin: 0; font-size: 16px; color: #333;">
-                Penilaian <span id="kelasLabel"></span> - Total: <span id="siswaCount">0</span> siswa
-            </h3>
-        </div>
-
-        <!-- Task Info -->
-        <div style="margin-bottom: 15px; padding: 10px; background-color: #f0f0f0; border-radius: 4px; font-size: 13px;">
-            <strong>Jumlah Tugas:</strong> <span id="infoJumlahTugas">5</span>
-        </div>
-
-        <!-- Export Buttons -->
-        <div id="exportButtons" style="margin-bottom: 15px; display: flex; gap: 10px;">
-            <!-- Will be populated by renderTable() -->
-        </div>
-
-        <hr style="margin: 15px 0; border: 1px solid #ddd;">
-
-        <table id="tabelPenilaian" style="width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto;">
-            <thead id="tabelHead">
-                <!-- Header akan di-generate di sini -->
-            </thead>
-            <tbody id="tabelBody">
-                <!-- Siswa dan input scores akan di-load di sini -->
-            </tbody>
-        </table>
-
-        <!-- Buttons Section -->
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button onclick="simpanSemualNilai()" style="background-color: #28a745; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                💾 Simpan Semua Nilai
-            </button>
-            <button onclick="resetTable()" style="background-color: #6c757d; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                🔄 Reset
-            </button>
-        </div>
-
-        <!-- Status Message -->
-        <div id="statusMessage" style="margin-top: 15px; display: none; padding: 12px; border-radius: 4px; border-left: 4px solid;"></div>
+      <div id="statusMessage" style="display:none; margin-top:14px; padding:12px 14px; border-radius:7px; border-left:4px solid; font-size:13px;"></div>
     </div>
 
     <!-- Empty State -->
-    <div id="emptyState" style="display: none; background-color: #f5f5f5; padding: 40px; border-radius: 8px; text-align: center;">
-        <p style="color: #999; font-size: 16px; margin: 0;">
-            <span id="emptyMessage">Pilih kelas untuk menampilkan daftar siswa</span>
-        </p>
+    <div id="emptyState" style="display:none; background:#f8fafc; padding:48px 20px; border-radius:10px; text-align:center; border:1.5px dashed #cbd5e1;">
+      <i class="fas fa-inbox" style="font-size:2.5rem; color:#cbd5e1; display:block; margin-bottom:12px;"></i>
+      <p id="emptyMessage" style="color:#94a3b8; font-size:14px; margin:0;">Pilih kelas untuk menampilkan daftar siswa</p>
     </div>
 
     <!-- Error State -->
-    <div id="errorState" style="display: none; background-color: #fee; padding: 15px; border-radius: 8px; border-left: 4px solid #f00;">
-        <p id="errorMessage" style="color: #c00; margin: 0;"></p>
+    <div id="errorState" style="display:none; background:#fef2f2; padding:14px 16px; border-radius:8px; border-left:4px solid #ef4444;">
+      <p id="errorMessage" style="color:#dc2626; margin:0; font-size:13px;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i></p>
     </div>
-    </div><!-- END GENERATE TAB -->
 
-    <!-- TERSIMPAN TAB -->
-    <div id="tersimpan-tab" style="display: none;">
-        <!-- List View -->
-        <div id="tersimpan-list-view" style="display: block;">
-            <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="margin-bottom: 15px;">
-                    <h3 style="margin: 0; font-size: 16px; color: #333;"><i class="fas fa-list"></i> Daftar Penilaian Tersimpan</h3>
-                </div>
+  </div><!-- END GENERATE TAB -->
 
-                <div id="tersimpanList" style="min-height: 200px;">
-                    <p style="color: #999; text-align: center;">Memuat data...</p>
-                </div>
-            </div>
+  <!-- ============ TERSIMPAN TAB ============ -->
+  <div id="tersimpan-tab" style="display:none;">
+
+    <!-- List View -->
+    <div id="tersimpan-list-view">
+      <div style="background:white; padding:20px; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.08); border:1px solid #e8edf2;">
+        <h3 style="margin:0 0 16px 0; font-size:15px; color:#1e293b;">
+          <i class="fas fa-list" style="color:#4472C4; margin-right:6px;"></i> Daftar Penilaian Tersimpan
+        </h3>
+        <div id="tersimpanList" style="min-height:200px;">
+          <p style="color:#94a3b8; text-align:center; padding:40px 0; font-size:14px;">
+            <i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i> Memuat data...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail View -->
+    <div id="tersimpan-detail-view" style="display:none;">
+      <button onclick="backToTersimpanList()"
+        style="background:#94a3b8; color:white; border:none; padding:8px 16px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;">
+        <i class="fas fa-arrow-left"></i> Kembali
+      </button>
+
+      <div style="background:white; padding:20px; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.08); border:1px solid #e8edf2; overflow-x:auto;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <h3 style="margin:0; font-size:15px; color:#1e293b;">
+            <i class="fas fa-table" style="color:#4472C4; margin-right:6px;"></i>
+            Penilaian <span id="detailKelasLabel" style="color:#4472C4;"></span>
+            &mdash; <span id="detailSiswaCount" style="color:#4472C4;">0</span> siswa
+          </h3>
+          <div style="background:#f8fafc; padding:6px 12px; border-radius:6px; font-size:12px; color:#64748b; border:1px solid #e2e8f0;">
+            <i class="fas fa-clipboard-list" style="margin-right:5px;"></i>
+            Jumlah Tugas: <strong id="detailJumlahTugas" style="color:#374151;">5</strong>
+          </div>
         </div>
 
-        <!-- Detail View -->
-        <div id="tersimpan-detail-view" style="display: none;">
-            <button onclick="backToTersimpanList()" style="background-color: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; margin-bottom: 15px;">
-                ← Kembali
-            </button>
+        <div id="detailExportButtons" style="display:flex; gap:8px; margin-bottom:14px;"></div>
 
-            <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
-                <div style="margin-bottom: 15px;">
-                    <h3 style="margin: 0; font-size: 16px; color: #333;">
-                        Penilaian <span id="detailKelasLabel"></span> - Total: <span id="detailSiswaCount">0</span> siswa
-                    </h3>
-                </div>
+        <hr style="margin:14px 0; border:none; border-top:1px solid #e8edf2;">
 
-                <!-- Task Info -->
-                <div style="margin-bottom: 15px; padding: 10px; background-color: #f0f0f0; border-radius: 4px; font-size: 13px;">
-                    <strong>Jumlah Tugas:</strong> <span id="detailJumlahTugas">5</span>
-                </div>
+        <table id="detailTablePenilaian" style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead id="detailTabelHead"></thead>
+          <tbody id="detailTabelBody"></tbody>
+        </table>
 
-                <!-- Export Buttons -->
-                <div id="detailExportButtons" style="margin-bottom: 15px; display: flex; gap: 10px;">
-                    <!-- Will be populated -->
-                </div>
-
-                <hr style="margin: 15px 0; border: 1px solid #ddd;">
-
-                <table id="detailTablePenilaian" style="width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto;">
-                    <thead id="detailTabelHead">
-                        <!-- Header akan di-generate -->
-                    </thead>
-                    <tbody id="detailTabelBody">
-                        <!-- Siswa dan scores akan di-load -->
-                    </tbody>
-                </table>
-
-                <!-- Buttons Section -->
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button onclick="simpanPenilaianTersimpan()" style="background-color: #28a745; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                        💾 Simpan Perubahan
-                    </button>
-                    <button onclick="backToTersimpanList()" style="background-color: #6c757d; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Batal
-                    </button>
-                </div>
-
-                <!-- Status Message -->
-                <div id="detailStatusMessage" style="margin-top: 15px; display: none; padding: 12px; border-radius: 4px; border-left: 4px solid;"></div>
-            </div>
+        <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button onclick="simpanPenilaianTersimpan()"
+            style="background:#22c55e; color:white; border:none; padding:11px 26px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:7px; box-shadow:0 2px 8px rgba(34,197,94,0.25);">
+            <i class="fas fa-save"></i> Simpan Perubahan
+          </button>
+          <button onclick="backToTersimpanList()"
+            style="background:#94a3b8; color:white; border:none; padding:11px 26px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:7px;">
+            <i class="fas fa-times"></i> Batal
+          </button>
         </div>
-    </div><!-- END TERSIMPAN TAB -->
 
-</div><!-- END CONTENT -->
+        <div id="detailStatusMessage" style="display:none; margin-top:14px; padding:12px 14px; border-radius:7px; border-left:4px solid; font-size:13px;"></div>
+      </div>
+    </div>
+
+  </div><!-- END TERSIMPAN TAB -->
+
+</div>
+
+<!-- Delete Confirm Modal -->
+<div id="deleteModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:white; border-radius:12px; padding:28px 28px 22px; max-width:380px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+      <div style="background:#fef2f2; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <i class="fas fa-trash-alt" style="color:#ef4444; font-size:1.1rem;"></i>
+      </div>
+      <div>
+        <h4 style="margin:0 0 3px 0; color:#1e293b; font-size:15px;">Hapus Penilaian?</h4>
+        <p style="margin:0; font-size:12px; color:#94a3b8;">Tindakan ini tidak dapat dibatalkan.</p>
+      </div>
+    </div>
+    <p style="color:#475569; font-size:13px; margin:0 0 20px 0;">
+      Seluruh data penilaian kelas <strong id="deleteKelasLabel" style="color:#4472C4;"></strong> akan dihapus permanen.
+    </p>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button onclick="closeDeleteModal()"
+        style="background:#f1f5f9; color:#475569; border:none; padding:9px 20px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px;">
+        Batal
+      </button>
+      <button onclick="confirmDelete()"
+        style="background:#ef4444; color:white; border:none; padding:9px 20px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px;">
+        <i class="fas fa-trash-alt"></i> Hapus
+      </button>
+    </div>
+  </div>
+</div>
 
 <style>
-    input[type="text"], input[type="number"], select, textarea {
-        font-family: inherit;
-        font-size: 13px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-        line-height: 1.5;
-    }
-
-    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: #4472C4;
-        box-shadow: 0 0 0 2px rgba(68, 114, 196, 0.1);
-    }
-
-    table {
-        background-color: white;
-    }
-
-    th {
-        background-color: #FFC000;
-        color: black;
-        font-weight: 600;
-        border: 1px solid #ddd;
-    }
-
-    td {
-        border: 1px solid #ddd;
-    }
-
-    input[type="checkbox"].task-checkbox {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-        margin: 0;
-    }
-
-    input[type="checkbox"].task-checkbox:focus {
-        outline: 2px solid #4472C4;
-    }
+  input[type="text"], input[type="number"], select {
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus {
+    outline: none;
+    border-color: #4472C4 !important;
+    box-shadow: 0 0 0 3px rgba(68,114,196,0.12);
+  }
+  th { font-family: inherit; }
+  input[type="checkbox"].task-checkbox {
+    width: 17px; height: 17px; cursor: pointer; margin: 0;
+    accent-color: #4472C4;
+  }
+  tr:hover td { background-color: #f8fafc; }
 </style>
 
 <script>
-    let siswaData = [];
-    let jumlahTugas = 5;
-    let currentTab = 'generate';
+  let siswaData = [];
+  let jumlahTugas = 5;
+  let currentTab = 'generate';
+  let deleteTarget = null;
 
-    function switchTab(tab) {
-        currentTab = tab;
-        
-        // Update UI
-        document.getElementById('generate-tab').style.display = tab === 'generate' ? 'block' : 'none';
-        document.getElementById('tersimpan-tab').style.display = tab === 'tersimpan' ? 'block' : 'none';
-        
-        // Update tab buttons
-        document.getElementById('tab-generate').style.backgroundColor = tab === 'generate' ? '#4472C4' : 'transparent';
-        document.getElementById('tab-generate').style.color = tab === 'generate' ? 'white' : '#666';
-        
-        document.getElementById('tab-tersimpan').style.backgroundColor = tab === 'tersimpan' ? '#4472C4' : 'transparent';
-        document.getElementById('tab-tersimpan').style.color = tab === 'tersimpan' ? 'white' : '#666';
-        
-        if (tab === 'tersimpan') {
-            loadTersimpan();
-        }
-    }
+  /* ── TAB SWITCH ── */
+  function switchTab(tab) {
+    currentTab = tab;
 
-    function loadTersimpan() {
-        fetch('../../backend/pages/get_penilaian_tersimpan.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.penilaian.length > 0) {
-                    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">';
-                    
-                    data.penilaian.forEach(item => {
-                        html += '<div onclick="viewPenilaianDetail(\'' + item.kelas.replace(/'/g, "\\'") + '\')" style="background-color: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"';
-                        html += ' onmouseover="this.style.boxShadow=\'0 4px 8px rgba(0,0,0,0.15)\'; this.style.borderColor=\'#4472C4\';"';
-                        html += ' onmouseout="this.style.boxShadow=\'0 1px 3px rgba(0,0,0,0.1)\'; this.style.borderColor=\'#ddd\';">';
-                        html += '<div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 10px;">📚 ' + item.kelas + '</div>';
-                        html += '<div style="font-size: 13px; color: #666; margin-bottom: 8px;"><strong>Tugas:</strong> ' + item.jumlah_tugas + '</div>';
-                        html += '<div style="font-size: 13px; color: #666; margin-bottom: 8px;"><strong>Siswa Dinilai:</strong> ' + item.jumlah_siswa + '</div>';
-                        html += '<div style="font-size: 12px; color: #999;"><strong>Update:</strong> ' + new Date(item.updated_at).toLocaleDateString('id-ID', {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) + '</div>';
-                        html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 12px; color: #4472C4; font-weight: 600;">Klik untuk detail & edit →</div>';
-                        html += '</div>';
-                    });
-                    
-                    html += '</div>';
-                    document.getElementById('tersimpanList').innerHTML = html;
-                } else {
-                    document.getElementById('tersimpanList').innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">Belum ada penilaian yang tersimpan.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('tersimpanList').innerHTML = '<p style="color: #c00; text-align: center;">Gagal memuat data penilaian.</p>';
-            });
-    }
+    const tabs = ['generate','tersimpan'];
+    tabs.forEach(t => {
+      const tabEl  = document.getElementById('tab-' + t);
+      const tabDiv = document.getElementById(t + '-tab');
+      const isActive = t === tab;
+      tabDiv.style.display    = isActive ? 'block' : 'none';
+      tabEl.style.background  = isActive ? '#4472C4' : 'transparent';
+      tabEl.style.color       = isActive ? 'white'   : '#64748b';
+      tabEl.style.boxShadow   = isActive ? '0 2px 8px rgba(68,114,196,0.3)' : 'none';
+    });
 
-    function viewPenilaianDetail(kelas) {
-        // Show detail view, hide list view
-        document.getElementById('tersimpan-list-view').style.display = 'none';
-        document.getElementById('tersimpan-detail-view').style.display = 'block';
+    if (tab === 'tersimpan') loadTersimpan();
+  }
 
-        // Load data
-        fetch('../../backend/pages/get_penilaian_detail.php?kelas=' + encodeURIComponent(kelas))
-            .then(response => {
-                if (!response.ok) throw new Error('Network error');
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    renderDetailTable(data.siswa, data.kelas, data.jumlah_tugas);
-                } else {
-                    showDetailStatusMessage('error', data.message || 'Gagal memuat data');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showDetailStatusMessage('error', 'Terjadi kesalahan saat memuat data');
-            });
-    }
+  /* ── LOAD SAVED LIST ── */
+  function loadTersimpan() {
+    document.getElementById('tersimpanList').innerHTML =
+      '<p style="color:#94a3b8;text-align:center;padding:40px 0;font-size:14px;"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i> Memuat data...</p>';
 
-    function renderDetailTable(siswa, kelas, jumlahTugas) {
-        const kelasLabel = document.getElementById('detailKelasLabel');
-        const siswaCount = document.getElementById('detailSiswaCount');
-        const headContainer = document.getElementById('detailTabelHead');
-        const bodyContainer = document.getElementById('detailTabelBody');
-        const exportButtonsContainer = document.getElementById('detailExportButtons');
-
-        kelasLabel.textContent = '(' + kelas + ')';
-        siswaCount.textContent = siswa.length;
-        document.getElementById('detailJumlahTugas').textContent = jumlahTugas;
-
-        // Generate export buttons
-        const klasEncoded = encodeURIComponent(kelas);
-        const exportHtml = `
-            <a href="../../backend/pages/export_penilaian_excel.php?mode=saved&kelas=${klasEncoded}" 
-               style="background-color: #28a745; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block;"
-               target="_blank">
-                📊 Export Excel
-            </a>
-            <a href="../../backend/pages/export_penilaian_pdf.php?mode=saved&kelas=${klasEncoded}" 
-               style="background-color: #dc3545; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block;"
-               target="_blank">
-                📄 Export PDF
-            </a>
-        `;
-        exportButtonsContainer.innerHTML = exportHtml;
-
-        // Generate header rows
-        let headerHtml = `
-            <tr>
-                <th rowspan="2" style="background-color: #FFC000; color: black; font-weight: 600; padding: 14px; border: 1px solid #ddd; text-align: center; vertical-align: middle; width: 50px;">No</th>
-                <th rowspan="2" style="background-color: #FFC000; color: black; font-weight: 600; padding: 14px; border: 1px solid #ddd; text-align: center; vertical-align: middle; min-width: 150px;">Nama</th>
-                <th colspan="${jumlahTugas}" style="background-color: #FFC000; color: black; font-weight: 600; padding: 14px; border: 1px solid #ddd; text-align: center;">Tugas Ke</th>
-            </tr>
-            <tr>
-        `;
-
-        // Add task number headers
-        for (let i = 1; i <= jumlahTugas; i++) {
-            headerHtml += `<th style="padding: 14px; text-align: center; border: 1px solid #ddd; width: 60px;">${i}</th>`;
-        }
-
-        headerHtml += `</tr>`;
-        headContainer.innerHTML = headerHtml;
-
-        // Generate body rows with editable checkboxes
-        let bodyHtml = '';
-        siswa.forEach((row, index) => {
-            bodyHtml += `
-                <tr data-id="${row.id_siswa}">
-                    <td style="text-align: left; padding: 14px; border: 1px solid #ddd; vertical-align: middle; width: 50px;">${index + 1}</td>
-                    <td style="text-align: left; padding: 14px; border: 1px solid #ddd; vertical-align: middle; min-width: 150px;">
-                        <strong>${htmlEscape(row.nama_siswa)}</strong>
-                    </td>
-            `;
-
-            // Add checkbox fields for each task
-            for (let i = 1; i <= jumlahTugas; i++) {
-                const isChecked = row.scores && row.scores[i - 1] == 1 ? 'checked' : '';
-                bodyHtml += `
-                    <td style="padding: 12px; border: 1px solid #ddd; text-align: center; width: 60px;">
-                        <input type="checkbox" class="task-checkbox task-${i}" ${isChecked}>
-                    </td>
-                `;
-            }
-
-            bodyHtml += `</tr>`;
-        });
-
-        bodyContainer.innerHTML = bodyHtml;
-    }
-
-    function backToTersimpanList() {
-        document.getElementById('tersimpan-list-view').style.display = 'block';
-        document.getElementById('tersimpan-detail-view').style.display = 'none';
-    }
-
-    function simpanPenilaianTersimpan() {
-        const tbody = document.getElementById('detailTabelBody');
-        const rows = tbody.querySelectorAll('tr');
-        let savedCount = 0;
-        let errorCount = 0;
-
-        if (rows.length === 0) {
-            showDetailStatusMessage('error', 'Tidak ada data yang disimpan');
-            return;
-        }
-
-        // Disable button during save
-        const saveBtn = event.target;
-        const originalText = saveBtn.textContent;
-        saveBtn.disabled = true;
-        saveBtn.style.opacity = '0.5';
-
-        // Get jumlah_tugas from document
-        const jumlahTugas = parseInt(document.getElementById('detailJumlahTugas').textContent);
-
-        rows.forEach(row => {
-            const id_siswa = parseInt(row.dataset.id);
-            const scores = [];
-
-            // Collect checkbox states for all tasks
-            for (let i = 1; i <= jumlahTugas; i++) {
-                const isChecked = row.querySelector(`.task-${i}`).checked ? 1 : 0;
-                scores.push(isChecked);
-            }
-
-            const formData = new FormData();
-            formData.append('id_siswa', id_siswa);
-            formData.append('jumlah_tugas', jumlahTugas);
-            formData.append('scores', JSON.stringify(scores));
-
-            fetch('../../backend/pages/save_penilaian.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    savedCount++;
-                } else {
-                    errorCount++;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                errorCount++;
-            });
-        });
-
-        // Show result after all requests
-        setTimeout(() => {
-            saveBtn.disabled = false;
-            saveBtn.style.opacity = '1';
-            if (errorCount === 0) {
-                showDetailStatusMessage('success', `✓ ${savedCount} nilai siswa berhasil disimpan`);
-            } else {
-                showDetailStatusMessage('error', `⚠ ${savedCount} disimpan, ${errorCount} gagal`);
-            }
-        }, 1000);
-    }
-
-    function showDetailStatusMessage(type, message) {
-        const statusDiv = document.getElementById('detailStatusMessage');
-        statusDiv.style.display = 'block';
-        statusDiv.textContent = message;
-        if (type === 'success') {
-            statusDiv.style.backgroundColor = '#d4edda';
-            statusDiv.style.color = '#155724';
-            statusDiv.style.borderLeftColor = '#28a745';
+    fetch('../../backend/pages/get_penilaian_tersimpan.php')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.penilaian.length > 0) {
+          let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">';
+          data.penilaian.forEach(item => {
+            const kls = item.kelas.replace(/'/g,"\\'");
+            html += `
+              <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);transition:all 0.2s;"
+                   onmouseover="this.style.borderColor='#4472C4';this.style.boxShadow='0 4px 14px rgba(68,114,196,0.15)'"
+                   onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.06)'">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;">
+                  <div style="display:flex;align-items:center;gap:9px;">
+                    <div style="background:#eff6ff;border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                      <i class="fas fa-book-open" style="color:#4472C4;font-size:1rem;"></i>
+                    </div>
+                    <div>
+                      <div style="font-size:15px;font-weight:700;color:#1e293b;">${item.kelas}</div>
+                      <div style="font-size:11px;color:#94a3b8;margin-top:2px;">
+                        <i class="fas fa-clock" style="margin-right:3px;"></i>
+                        ${new Date(item.updated_at).toLocaleDateString('id-ID',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+                      </div>
+                    </div>
+                  </div>
+                  <button onclick="openDeleteModal('${kls}')"
+                    style="background:#fef2f2;color:#ef4444;border:1px solid #fecaca;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;flex-shrink:0;display:flex;align-items:center;gap:5px;"
+                    title="Hapus penilaian">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+                  <div style="background:white;border-radius:6px;padding:9px;border:1px solid #e2e8f0;text-align:center;">
+                    <div style="font-size:11px;color:#94a3b8;margin-bottom:3px;">Tugas</div>
+                    <div style="font-size:17px;font-weight:700;color:#4472C4;">${item.jumlah_tugas}</div>
+                  </div>
+                  <div style="background:white;border-radius:6px;padding:9px;border:1px solid #e2e8f0;text-align:center;">
+                    <div style="font-size:11px;color:#94a3b8;margin-bottom:3px;">Siswa</div>
+                    <div style="font-size:17px;font-weight:700;color:#22c55e;">${item.jumlah_siswa}</div>
+                  </div>
+                </div>
+                <button onclick="viewPenilaianDetail('${kls}')"
+                  style="width:100%;background:#4472C4;color:white;border:none;padding:9px;border-radius:7px;cursor:pointer;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:7px;">
+                  <i class="fas fa-eye"></i> Lihat Detail &amp; Edit
+                </button>
+              </div>`;
+          });
+          html += '</div>';
+          document.getElementById('tersimpanList').innerHTML = html;
         } else {
-            statusDiv.style.backgroundColor = '#f8d7da';
-            statusDiv.style.color = '#721c24';
-            statusDiv.style.borderLeftColor = '#dc3545';
+          document.getElementById('tersimpanList').innerHTML =
+            '<div style="text-align:center;padding:60px 20px;"><i class="fas fa-folder-open" style="font-size:3rem;color:#cbd5e1;display:block;margin-bottom:14px;"></i><p style="color:#94a3b8;font-size:14px;margin:0;">Belum ada penilaian yang tersimpan.</p></div>';
         }
-        setTimeout(() => {
-            statusDiv.style.display = 'none';
-        }, 3000);
-    }
+      })
+      .catch(() => {
+        document.getElementById('tersimpanList').innerHTML =
+          '<p style="color:#dc2626;text-align:center;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data penilaian.</p>';
+      });
+  }
 
-    function generateTable() {
-        const kelasSelect = document.getElementById('kelasSelect');
-        const kelas = kelasSelect.value;
-        const jumlah = parseInt(document.getElementById('jumlahTugas').value) || 5;
+  /* ── DELETE MODAL ── */
+  function openDeleteModal(kelas) {
+    deleteTarget = kelas;
+    document.getElementById('deleteKelasLabel').textContent = kelas;
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'flex';
+  }
 
-        if (!kelas) {
-            showEmpty('Pilih kelas terlebih dahulu');
-            return;
-        }
+  function closeDeleteModal() {
+    deleteTarget = null;
+    document.getElementById('deleteModal').style.display = 'none';
+  }
 
-        if (jumlah < 1 || jumlah > 50) {
-            showError('Jumlah tugas harus antara 1-50');
-            return;
-        }
+  function confirmDelete() {
+    if (!deleteTarget) return;
+    const formData = new FormData();
+    formData.append('kelas', deleteTarget);
 
-        jumlahTugas = jumlah;
-
-        // Show loading state
-        document.getElementById('tableContainer').style.display = 'none';
-        document.getElementById('emptyState').style.display = 'none';
-        document.getElementById('errorState').style.display = 'none';
-
-        // Fetch siswa by kelas
-        fetch('../../backend/pages/get_siswa_for_penilaian.php?kelas=' + encodeURIComponent(kelas))
-            .then(response => {
-                if (!response.ok) throw new Error('Network error');
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    if (data.count === 0) {
-                        showEmpty('Belum ada siswa di kelas ' + kelas + '. Tambahkan siswa terlebih dahulu di menu Data Siswa.');
-                    } else {
-                        siswaData = data.siswa;
-                        renderTable(data.siswa, kelas, jumlahTugas);
-                        document.getElementById('tableContainer').style.display = 'block';
-                        document.getElementById('emptyState').style.display = 'none';
-                        document.getElementById('errorState').style.display = 'none';
-                    }
-                } else {
-                    showError(data.message || 'Gagal memuat data siswa');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showError('Terjadi kesalahan saat memuat data siswa');
-            });
-    }
-
-    function renderTable(siswa, kelas, jumlahTugas) {
-        const kelasLabel = document.getElementById('kelasLabel');
-        const siswaCount = document.getElementById('siswaCount');
-        const headContainer = document.getElementById('tabelHead');
-        const bodyContainer = document.getElementById('tabelBody');
-        const exportButtonsContainer = document.getElementById('exportButtons');
-
-        kelasLabel.textContent = '(' + kelas + ')';
-        siswaCount.textContent = siswa.length;
-        document.getElementById('infoJumlahTugas').textContent = jumlahTugas;
-
-        // Generate export buttons with proper URL encoding
-        const klasEncoded = encodeURIComponent(kelas);
-        const exportHtml = `
-            <a href="../../backend/pages/export_penilaian_excel.php?kelas=${klasEncoded}&jumlah_tugas=${jumlahTugas}" 
-               style="background-color: #28a745; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block;"
-               target="_blank">
-                📊 Export Excel
-            </a>
-            <a href="../../backend/pages/export_penilaian_pdf.php?kelas=${klasEncoded}&jumlah_tugas=${jumlahTugas}" 
-               style="background-color: #dc3545; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block;"
-               target="_blank">
-                📄 Export PDF
-            </a>
-        `;
-        exportButtonsContainer.innerHTML = exportHtml;
-
-        // Generate header rows
-        let headerHtml = `
-            <tr>
-                <th rowspan="2" style="background-color: #FFC000; color: black; font-weight: 600; padding: 14px; border: 1px solid #ddd; text-align: center; vertical-align: middle; width: 50px;">No</th>
-                <th rowspan="2" style="background-color: #FFC000; color: black; font-weight: 600; padding: 14px; border: 1px solid #ddd; text-align: center; vertical-align: middle; min-width: 150px;">Nama</th>
-                <th colspan="${jumlahTugas}" style="background-color: #FFC000; color: black; font-weight: 600; padding: 14px; border: 1px solid #ddd; text-align: center;">Tugas Ke</th>
-            </tr>
-            <tr>
-        `;
-
-        // Add task number headers
-        for (let i = 1; i <= jumlahTugas; i++) {
-            headerHtml += `<th style="padding: 14px; text-align: center; border: 1px solid #ddd; width: 60px;">${i}</th>`;
-        }
-
-        headerHtml += `</tr>`;
-        headContainer.innerHTML = headerHtml;
-
-        // Generate body rows
-        let bodyHtml = '';
-        siswa.forEach((row, index) => {
-            bodyHtml += `
-                <tr data-id="${row.id_siswa}">
-                    <td style="text-align: left; padding: 14px; border: 1px solid #ddd; vertical-align: middle; width: 50px;">${index + 1}</td>
-                    <td style="text-align: left; padding: 14px; border: 1px solid #ddd; vertical-align: middle; min-width: 150px;">
-                        <strong>${htmlEscape(row.nama_siswa)}</strong>
-                    </td>
-            `;
-
-            // Add checkbox fields for each task
-            for (let i = 1; i <= jumlahTugas; i++) {
-                bodyHtml += `
-                    <td style="padding: 12px; border: 1px solid #ddd; text-align: center; width: 60px;">
-                        <input type="checkbox" class="task-checkbox task-${i}">
-                    </td>
-                `;
-            }
-
-            bodyHtml += `</tr>`;
-        });
-
-        bodyContainer.innerHTML = bodyHtml;
-    }
-
-    function simpanSemualNilai() {
-        if (siswaData.length === 0) {
-            showStatusMessage('error', 'Tidak ada data yang disimpan');
-            return;
-        }
-
-        const tbody = document.getElementById('tabelBody');
-        const rows = tbody.querySelectorAll('tr');
-        let savedCount = 0;
-        let errorCount = 0;
-
-        // Disable button during save
-        const saveBtn = event.target;
-        saveBtn.disabled = true;
-        saveBtn.style.opacity = '0.5';
-
-        rows.forEach(row => {
-            const id_siswa = parseInt(row.dataset.id);
-            const scores = [];
-
-            // Collect checkbox states for all tasks
-            for (let i = 1; i <= jumlahTugas; i++) {
-                const isChecked = row.querySelector(`.task-${i}`).checked ? 1 : 0;
-                scores.push(isChecked);
-            }
-
-            const formData = new FormData();
-            formData.append('id_siswa', id_siswa);
-            formData.append('jumlah_tugas', jumlahTugas);
-            formData.append('scores', JSON.stringify(scores));
-
-            fetch('../../backend/pages/save_penilaian.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    savedCount++;
-                } else {
-                    errorCount++;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                errorCount++;
-            });
-        });
-
-        // Show result after all requests
-        setTimeout(() => {
-            saveBtn.disabled = false;
-            saveBtn.style.opacity = '1';
-            if (errorCount === 0) {
-                showStatusMessage('success', `✓ ${savedCount} nilai siswa berhasil disimpan`);
-            } else {
-                showStatusMessage('error', `⚠ ${savedCount} disimpan, ${errorCount} gagal`);
-            }
-        }, 1000);
-    }
-
-    function resetTable() {
-        if (confirm('Reset tabel? Semua input nilai akan dikosongkan.')) {
-            generateTable();
-        }
-    }
-
-    function showStatusMessage(type, message) {
-        const statusDiv = document.getElementById('statusMessage');
-        statusDiv.style.display = 'block';
-        statusDiv.textContent = message;
-        if (type === 'success') {
-            statusDiv.style.backgroundColor = '#d4edda';
-            statusDiv.style.color = '#155724';
-            statusDiv.style.borderLeftColor = '#28a745';
+    fetch('../../backend/pages/delete_penilaian.php', { method:'POST', body:formData })
+      .then(r => r.json())
+      .then(data => {
+        closeDeleteModal();
+        if (data.success) {
+          loadTersimpan();
         } else {
-            statusDiv.style.backgroundColor = '#f8d7da';
-            statusDiv.style.color = '#721c24';
-            statusDiv.style.borderLeftColor = '#dc3545';
+          alert('Gagal menghapus: ' + (data.message || 'Error'));
         }
-        setTimeout(() => {
-            statusDiv.style.display = 'none';
-        }, 3000);
-    }
+      })
+      .catch(() => { closeDeleteModal(); alert('Terjadi kesalahan saat menghapus.'); });
+  }
 
-    function showEmpty(message) {
-        document.getElementById('tableContainer').style.display = 'none';
-        document.getElementById('errorState').style.display = 'none';
-        document.getElementById('emptyState').style.display = 'block';
-        document.getElementById('emptyMessage').textContent = message;
-    }
+  // Close modal on backdrop click
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+  });
 
-    function showError(message) {
-        document.getElementById('tableContainer').style.display = 'none';
-        document.getElementById('emptyState').style.display = 'none';
-        document.getElementById('errorState').style.display = 'block';
-        document.getElementById('errorMessage').textContent = message;
-    }
+  /* ── VIEW DETAIL ── */
+  function viewPenilaianDetail(kelas) {
+    document.getElementById('tersimpan-list-view').style.display = 'none';
+    document.getElementById('tersimpan-detail-view').style.display = 'block';
+    document.getElementById('detailTabelBody').innerHTML =
+      '<tr><td colspan="100%" style="text-align:center;padding:30px;color:#94a3b8;"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Memuat...</td></tr>';
 
-    function htmlEscape(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+    fetch('../../backend/pages/get_penilaian_detail.php?kelas=' + encodeURIComponent(kelas))
+      .then(r => { if(!r.ok) throw new Error('Network error'); return r.json(); })
+      .then(data => {
+        if (data.success) renderDetailTable(data.siswa, data.kelas, data.jumlah_tugas);
+        else showDetailStatusMessage('error', data.message || 'Gagal memuat data');
+      })
+      .catch(() => showDetailStatusMessage('error', 'Terjadi kesalahan saat memuat data'));
+  }
+
+  function renderDetailTable(siswa, kelas, jTugas) {
+    document.getElementById('detailKelasLabel').textContent = '(' + kelas + ')';
+    document.getElementById('detailSiswaCount').textContent = siswa.length;
+    document.getElementById('detailJumlahTugas').textContent = jTugas;
+
+    const klasEncoded = encodeURIComponent(kelas);
+    document.getElementById('detailExportButtons').innerHTML = `
+      <a href="../../backend/pages/export_penilaian_excel.php?mode=saved&kelas=${klasEncoded}"
+         style="background:#22c55e;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
+        <i class="fas fa-file-excel"></i> Export Excel
+      </a>
+      <a href="../../backend/pages/export_penilaian_pdf.php?mode=saved&kelas=${klasEncoded}"
+         style="background:#ef4444;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </a>`;
+
+    document.getElementById('detailTabelHead').innerHTML = buildHeaderHtml(jTugas);
+    document.getElementById('detailTabelBody').innerHTML = buildBodyHtml(siswa, jTugas, true);
+  }
+
+  function backToTersimpanList() {
+    document.getElementById('tersimpan-list-view').style.display = 'block';
+    document.getElementById('tersimpan-detail-view').style.display = 'none';
+  }
+
+  /* ── GENERATE TABLE ── */
+  function generateTable() {
+    const kelas  = document.getElementById('kelasSelect').value;
+    const jumlah = parseInt(document.getElementById('jumlahTugas').value) || 5;
+
+    if (!kelas) { showEmpty('Pilih kelas terlebih dahulu'); return; }
+    if (jumlah < 1 || jumlah > 50) { showError('Jumlah tugas harus antara 1-50'); return; }
+
+    jumlahTugas = jumlah;
+    document.getElementById('tableContainer').style.display = 'none';
+    document.getElementById('emptyState').style.display    = 'none';
+    document.getElementById('errorState').style.display    = 'none';
+
+    fetch('../../backend/pages/get_siswa_for_penilaian.php?kelas=' + encodeURIComponent(kelas))
+      .then(r => { if(!r.ok) throw new Error('Network error'); return r.json(); })
+      .then(data => {
+        if (data.success) {
+          if (data.count === 0) {
+            showEmpty('Belum ada siswa di kelas ' + kelas + '. Tambahkan siswa terlebih dahulu di menu Data Siswa.');
+          } else {
+            siswaData = data.siswa;
+            renderTable(data.siswa, kelas, jumlahTugas);
+            document.getElementById('tableContainer').style.display = 'block';
+          }
+        } else {
+          showError(data.message || 'Gagal memuat data siswa');
+        }
+      })
+      .catch(() => showError('Terjadi kesalahan saat memuat data siswa'));
+  }
+
+  function renderTable(siswa, kelas, jTugas) {
+    document.getElementById('kelasLabel').textContent = '(' + kelas + ')';
+    document.getElementById('siswaCount').textContent = siswa.length;
+    document.getElementById('infoJumlahTugas').textContent = jTugas;
+
+    const klasEncoded = encodeURIComponent(kelas);
+    document.getElementById('exportButtons').innerHTML = `
+      <a href="../../backend/pages/export_penilaian_excel.php?kelas=${klasEncoded}&jumlah_tugas=${jTugas}"
+         style="background:#22c55e;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
+        <i class="fas fa-file-excel"></i> Export Excel
+      </a>
+      <a href="../../backend/pages/export_penilaian_pdf.php?kelas=${klasEncoded}&jumlah_tugas=${jTugas}"
+         style="background:#ef4444;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </a>`;
+
+    document.getElementById('tabelHead').innerHTML = buildHeaderHtml(jTugas);
+    document.getElementById('tabelBody').innerHTML = buildBodyHtml(siswa, jTugas, false);
+  }
+
+  /* ── SHARED TABLE BUILDERS ── */
+  function buildHeaderHtml(jTugas) {
+    let h = `
+      <tr>
+        <th rowspan="2" style="background:#FFC000;color:#1e293b;font-weight:700;padding:12px 14px;border:1px solid #e2e8f0;text-align:center;vertical-align:middle;width:50px;">No</th>
+        <th rowspan="2" style="background:#FFC000;color:#1e293b;font-weight:700;padding:12px 14px;border:1px solid #e2e8f0;text-align:left;vertical-align:middle;min-width:150px;">Nama Siswa</th>
+        <th colspan="${jTugas}" style="background:#FFC000;color:#1e293b;font-weight:700;padding:12px 14px;border:1px solid #e2e8f0;text-align:center;">Tugas Ke</th>
+      </tr><tr>`;
+    for (let i = 1; i <= jTugas; i++) {
+      h += `<th style="background:#FFC000;color:#1e293b;font-weight:700;padding:10px;border:1px solid #e2e8f0;text-align:center;width:55px;">${i}</th>`;
     }
+    return h + '</tr>';
+  }
+
+  function buildBodyHtml(siswa, jTugas, withScores) {
+    return siswa.map((row, idx) => {
+      let cells = '';
+      for (let i = 1; i <= jTugas; i++) {
+        const checked = withScores && row.scores && row.scores[i-1] == 1 ? 'checked' : '';
+        cells += `<td style="padding:10px;border:1px solid #e2e8f0;text-align:center;width:55px;">
+          <input type="checkbox" class="task-checkbox task-${i}" ${checked}>
+        </td>`;
+      }
+      return `<tr data-id="${row.id_siswa}">
+        <td style="text-align:center;padding:12px 14px;border:1px solid #e2e8f0;vertical-align:middle;color:#64748b;font-size:12px;">${idx+1}</td>
+        <td style="text-align:left;padding:12px 14px;border:1px solid #e2e8f0;vertical-align:middle;">
+          <div style="font-weight:600;color:#1e293b;">${htmlEscape(row.nama_siswa)}</div>
+        </td>
+        ${cells}
+      </tr>`;
+    }).join('');
+  }
+
+  /* ── SAVE FUNCTIONS ── */
+  function simpanSemualNilai() {
+    if (siswaData.length === 0) { showStatusMessage('error','Tidak ada data yang disimpan'); return; }
+    savePenilaian(document.getElementById('tabelBody'), jumlahTugas, 'statusMessage', event.target);
+  }
+
+  function simpanPenilaianTersimpan() {
+    const jTugas = parseInt(document.getElementById('detailJumlahTugas').textContent);
+    savePenilaian(document.getElementById('detailTabelBody'), jTugas, 'detailStatusMessage', event.target);
+  }
+
+  function savePenilaian(tbody, jTugas, statusId, btn) {
+    const rows = tbody.querySelectorAll('tr');
+    if (rows.length === 0) { showMsg(statusId,'error','Tidak ada data yang disimpan'); return; }
+
+    btn.disabled = true; btn.style.opacity = '0.55';
+    let savedCount = 0, errorCount = 0, total = rows.length;
+
+    rows.forEach(row => {
+      const id_siswa = parseInt(row.dataset.id);
+      const scores = [];
+      for (let i = 1; i <= jTugas; i++) {
+        scores.push(row.querySelector('.task-' + i).checked ? 1 : 0);
+      }
+      const fd = new FormData();
+      fd.append('id_siswa', id_siswa);
+      fd.append('jumlah_tugas', jTugas);
+      fd.append('scores', JSON.stringify(scores));
+
+      fetch('../../backend/pages/save_penilaian.php', { method:'POST', body:fd })
+        .then(r => r.json())
+        .then(d => { d.success ? savedCount++ : errorCount++; })
+        .catch(() => errorCount++)
+        .finally(() => {
+          if (savedCount + errorCount === total) {
+            btn.disabled = false; btn.style.opacity = '1';
+            errorCount === 0
+              ? showMsg(statusId,'success',`${savedCount} nilai siswa berhasil disimpan`)
+              : showMsg(statusId,'error',`${savedCount} disimpan, ${errorCount} gagal`);
+          }
+        });
+    });
+  }
+
+  /* ── HELPERS ── */
+  function showMsg(id, type, message) {
+    const el = document.getElementById(id);
+    el.style.display = 'block';
+    el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" style="margin-right:6px;"></i>${message}`;
+    el.style.background   = type === 'success' ? '#f0fdf4' : '#fef2f2';
+    el.style.color        = type === 'success' ? '#166534' : '#dc2626';
+    el.style.borderLeftColor = type === 'success' ? '#22c55e' : '#ef4444';
+    setTimeout(() => el.style.display = 'none', 3500);
+  }
+
+  function showStatusMessage(type, msg) { showMsg('statusMessage', type, msg); }
+  function showDetailStatusMessage(type, msg) { showMsg('detailStatusMessage', type, msg); }
+
+  function showEmpty(msg) {
+    document.getElementById('tableContainer').style.display = 'none';
+    document.getElementById('errorState').style.display    = 'none';
+    document.getElementById('emptyState').style.display    = 'block';
+    document.getElementById('emptyMessage').textContent    = msg;
+  }
+
+  function showError(msg) {
+    document.getElementById('tableContainer').style.display = 'none';
+    document.getElementById('emptyState').style.display    = 'none';
+    document.getElementById('errorState').style.display    = 'block';
+    document.getElementById('errorMessage').innerHTML      = '<i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>' + msg;
+  }
+
+  function resetTable() {
+    if (confirm('Reset tabel? Semua input nilai akan dikosongkan.')) generateTable();
+  }
+
+  function htmlEscape(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
 </script>
 
-<?php
-include '../layouts/footer.php';
-?>
-
+<?php include '../layouts/footer.php'; ?>

@@ -28,8 +28,8 @@ $data = mysqli_query($conn,"SELECT * FROM sekolah");
 		<div style="display:flex;gap:0.75rem;flex-wrap:wrap">
 			<a href="./kelas.php" class="btn" style="white-space:nowrap">📚 Data Kelas</a>
 			<?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-				<a href="./guru_bk/index.php" class="btn" style="white-space:nowrap">👨‍🏫 Kelola Guru BK</a>
-				<a href="./bk.php" class="btn" style="white-space:nowrap">🔗 Tetapkan BK</a>
+				<a href="../guru_bk/index.php" class="btn" style="white-space:nowrap">👨‍🏫 Kelola Guru BK</a>
+				<a href="../bk.php" class="btn" style="white-space:nowrap">🔗 Tetapkan BK</a>
 				<a href="./tambah.php" class="btn" style="white-space:nowrap">➕ Tambah Sekolah</a>
 			<?php endif; ?>
 		</div>
