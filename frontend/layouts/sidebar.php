@@ -28,24 +28,24 @@ function isActive($path) {
                 <?php endif; ?>
             </div>
             <div style="min-width:0">
-                <div style="color:white;font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                <div style="color:black;font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                     <?= htmlspecialchars($nama_guru) ?>
                 </div>
-                <div style="color:rgba(255,255,255,0.6);font-size:0.75rem">
+                <div style="font-color:rgba(0, 0, 0, 0);font-size:0.75rem">
                     <?= $role === 'admin' ? 'Administrator' : 'Guru BK' ?>
-                </div>
+                </div> 
             </div>
-            <i class="fas fa-chevron-right" style="margin-left:auto;color:rgba(255,255,255,0.4);font-size:0.7rem"></i>
+            <i class="fas fa-chevron-right" style="margin-left:auto;color:rgba(0, 0, 0, 0.4);font-size:0.7rem"></i>
         </a>
 
         <ul class="sidebar-menu">
             <li>
                 <a href="/frontend/dashboard.php" class="sidebar-link <?= isActive('/dashboard') ?>">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <i class="fa-solid fa-house"></i> Dashboard
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/konseling/data_pribadi.php" class="sidebar-link <?= isActive('/konseling') ?>">
+                <a href="/frontend/pages/data_pribadi_siswa.php" class="sidebar-link <?= isActive('/data_pribadi_siswa') ?>">
                     <i class="fas fa-user-circle"></i> Data Pribadi Siswa
                 </a>
             </li>
@@ -61,12 +61,12 @@ function isActive($path) {
             </li>
             <li>
                 <a href="/frontend/pages/penilaian.php" class="sidebar-link <?= isActive('/penilaian') ?>">
-                    <i class="fas fa-star"></i> Penilaian Siswa
+                    <i class="fa-solid fa-percent"></i> Penilaian Siswa
                 </a>
             </li>
             <li>
                 <a href="/frontend/pages/layanan_mediasi_manual.php" class="sidebar-link <?= isActive('/mediasi') ?>">
-                    <i class="fas fa-handshake"></i> Layanan Mediasi
+                    <i class="fas fa-handshake"></i> Layanan
                 </a>
             </li>
 

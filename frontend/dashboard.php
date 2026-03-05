@@ -47,9 +47,6 @@ include "layouts/sidebar.php";
     </div>
 
     <!-- CTA Button -->
-    <a href="./siswa/tambah.php" style="background:#fff; color:#4f46e5; text-decoration:none; padding:0.75rem 1.5rem; border-radius:10px; font-size:0.9rem; font-weight:700; display:inline-flex; align-items:center; gap:0.5rem; box-shadow:0 4px 12px rgba(0,0,0,0.15); white-space:nowrap;">
-      <i class="fas fa-plus"></i> Tambah Siswa
-    </a>
   </div>
 
   <!-- Section Title -->

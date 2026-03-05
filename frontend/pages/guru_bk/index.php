@@ -14,16 +14,24 @@ $list = mysqli_query($conn,
      JOIN users u ON u.id_user = gb.id_user
      ORDER BY gb.nama ASC"
 );
+
+// Get school info
+$school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
+$school = mysqli_fetch_assoc($school_result);
+$school_name = $school['nama_sekolah'] ?? '';
+
 ?>
 
+    <div style="background:var(--brand,#4472C4);color:white;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:1.25rem">
+        <h2 style="margin:0 0 4px;font-size:1.1rem;font-weight:700">
+            <i class="fas fa-chalkboard-user" style="margin-right:4px"></i> KELOLA GURU BK
+        </h2>
+        <p style="margin:0;font-size:.85rem;opacity:.9">Manajemen akun dan data guru bimbingan konseling</p>
+        <p><?= htmlspecialchars($school_name) ?></p>
+    </div>
+
 <section class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:2rem">
-        <div>
-            <h1 style="margin-bottom:0.25rem;font-size:1.75rem">
-                <i class="fas fa-chalkboard-user"></i> Kelola Guru BK
-            </h1>
-            <p style="color:var(--text-light);margin:0">Manajemen akun dan data guru bimbingan konseling</p>
-        </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:0.1rem">
         <a href="./tambah.php" class="btn" style="text-decoration:none">
             <i class="fas fa-plus"></i> Tambah Guru BK
         </a>
@@ -110,7 +118,7 @@ $list = mysqli_query($conn,
                                 <i class="fas fa-pencil"></i> Edit
                             </a>
                             <a href="javascript:void(0)"
-                               onclick="if(confirm('Hapus guru BK ini beserta akun loginnya?')) location.href='/backend/pages/sekolah/guru_bk/delete.php?id=<?= $row['id_guru_bk'] ?>'"
+                               onclick="if(confirm('Hapus guru BK ini beserta akun loginnya?')) location.href='/backend/pages/guru_bk/delete.php?id=<?= $row['id_guru_bk'] ?>'"
                                class="btn" style="text-decoration:none;padding:0.4rem 0.875rem;font-size:0.85rem;background:#ef4444;color:white">
                                 <i class="fas fa-trash"></i> Hapus
                             </a>
@@ -142,7 +150,7 @@ function toggleAktif(id_user, current_status, btn) {
     fd.append('id_user',   id_user);
     fd.append('is_active', new_status);
 
-    fetch('/backend/pages/sekolah/guru_bk/activate_user.php', { method:'POST', body:fd })
+    fetch('/backend/pages/guru_bk/activate_user.php', { method:'POST', body:fd })
         .then(r => r.json())
         .then(data => {
             if (data.success) {

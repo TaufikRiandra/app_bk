@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['login'])){
-    header("Location: ../auth/login.php");
+    header("Location: ../../auth/login.php");
     exit;
 }
 // Proteksi: hanya admin yang bisa edit sekolah
@@ -9,9 +9,9 @@ if(isset($_SESSION['role']) && $_SESSION['role'] !== 'admin'){
     header("Location: /frontend/dashboard.php");
     exit;
 }
-include "../../backend/config/database.php";
-include "../layouts/header.php";
-include "../layouts/sidebar.php";
+include "../../../backend/config/database.php";
+include "../../layouts/header.php";
+include "../../layouts/sidebar.php";
 
 $data = mysqli_query($conn,"SELECT * FROM sekolah WHERE id_sekolah='$_GET[id]'");
 $d = mysqli_fetch_assoc($data);
@@ -23,7 +23,7 @@ $d = mysqli_fetch_assoc($data);
 		<p style="color:var(--text-light);margin:0">Perbarui informasi sekolah di bawah ini</p>
 	</div>
 
-	<form action="../../backend/sekolah/update.php" method="POST">
+	<form action="../../../backend/pages/sekolah/update.php" method="POST">
 		<input type="hidden" name="id" value="<?= $d['id_sekolah'] ?>">
 
 		<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
@@ -72,14 +72,14 @@ $d = mysqli_fetch_assoc($data);
 		</div>
 
 		<label for="tahun_ajaran">Tahun Ajaran</label>
-		<input type="text" id="tahun_ajaran" name="tahun_ajaran" value="<?= htmlspecialchars($d['tahun_ajaran'] ?? '') ?>" placeholder="2024/2025">
+		<input type="text" id="tahun_ajaran" name="tahun_ajaran" value="<?= htmlspecialchars($d['tahun_ajaran'] ?? '') ?>" placeholder="2026/2027">
 		
 		<div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap">
 			<button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Update Data</button>
-			<a href="../../frontend/sekolah/index.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
+			<a href="../../../frontend/pages/sekolah/index.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
 		</div>
 	</form>
 </section>
 
-<?php include "../layouts/footer.php"; ?>
+<?php include "../../layouts/footer.php"; ?>
 

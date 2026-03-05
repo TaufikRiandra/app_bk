@@ -29,7 +29,7 @@ if($kelas_terpilih){
 
 <section class="card">
 	<div style="margin-bottom:2rem">
-		<h1 style="margin-bottom:0.25rem;font-size:1.75rem">📚 Data Kelas</h1>
+		<h1 style="margin-bottom:0.25rem;font-size:1.75rem"><i class="fa-solid fa-people-roof"></i> Data Kelas</h1>
 		<p style="color:var(--text-light);margin:0">
 			<?= htmlspecialchars($data_sekolah['nama_sekolah'] ?? 'Sekolah') ?> - 
 			<?= htmlspecialchars($data_sekolah['tahun_pelajaran'] ?? 'Tahun Pelajaran') ?>
@@ -41,7 +41,7 @@ if($kelas_terpilih){
 		
 		<!-- Kolom Kiri: Data Sekolah -->
 		<div style="position:sticky;top:2rem;background:var(--bg-light);padding:1.5rem;border-radius:8px;border:1px solid var(--border)">
-			<h3 style="margin-top:0;margin-bottom:1rem;color:var(--brand);font-size:1rem">📋 Data Sekolah</h3>
+			<h3 style="margin-top:0;margin-bottom:1rem;color:var(--brand);font-size:1rem">Data Sekolah</h3>
 			
 			<table style="width:100%;font-size:0.9rem">
 				<tbody>
@@ -143,7 +143,7 @@ if($kelas_terpilih){
 			<!-- Pesan jika tidak ada kelas dipilih -->
 			<?php if(!$kelas_terpilih): ?>
 				<div style="text-align:center;padding:2rem;color:var(--text-light);background:var(--bg-light);border-radius:8px">
-					<p style="margin:0">👈 Pilih kelas untuk melihat info</p>
+					<p style="margin:0">Pilih kelas untuk melihat info</p>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -208,7 +208,7 @@ if($kelas_terpilih){
 			<?php else: ?>
 				<!-- Kelas Belum Dipilih -->
 				<div style="background:var(--surface);border:2px dashed var(--border);border-radius:12px;padding:2rem;text-align:center">
-					<div style="font-size:2.5rem;margin-bottom:1rem">📌</div>
+					<div style="font-size:2.5rem;margin-bottom:1rem"></div>
 					<p style="color:var(--text-light);margin:0">Pilih kelas untuk melihat</p>
 					<p style="color:var(--text-light);margin:0.5rem 0 0 0;font-size:0.9rem">informasi Guru BK</p>
 				</div>

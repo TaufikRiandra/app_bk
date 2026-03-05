@@ -88,15 +88,13 @@ $all_kelas = array_merge($kelas_7, $kelas_8, $kelas_9);
 
 		<div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap">
 			<button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Simpan Penugasan</button>
-			<a href="/frontend/sekolah/index.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
+			<a href="/frontend/pages/sekolah/index.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
 			<a href="./guru_bk/index.php" class="btn btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem"><i class="fas fa-chalkboard-user"></i> Kelola Guru BK</a>
 		</div>
 
 	</form>
 
 </section>
-
-<?php include "../layouts/footer.php"; ?>
 
 		</div>
 	</form>

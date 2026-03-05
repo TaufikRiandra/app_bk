@@ -32,6 +32,9 @@ $GLOBALS['conn'] = $conn;
 		<a href="?tab=layanan_mediasi" style="padding:0.75rem 1.5rem;text-decoration:none;display:flex;align-items:center;gap:0.5rem;color:<?= $tab === 'layanan_mediasi' ? 'var(--brand)' : 'var(--text-light)' ?>;background-color:<?= $tab === 'layanan_mediasi' ? '#E8E4FF' : 'transparent' ?>;border-bottom:3px solid <?= $tab === 'layanan_mediasi' ? 'var(--brand)' : 'transparent' ?>;cursor:pointer;font-weight:<?= $tab === 'layanan_mediasi' ? '600' : 'normal' ?>;border-radius:4px 4px 0 0">
 			<i class="fas fa-medkit"></i> Layanan Mediasi
 		</a>
+		<a href="?tab=data_pribadi_siswa" style="padding:0.75rem 1.5rem;text-decoration:none;display:flex;align-items:center;gap:0.5rem;color:<?= $tab === 'data_pribadi_siswa' ? 'var(--brand)' : 'var(--text-light)' ?>;background-color:<?= $tab === 'data_pribadi_siswa' ? '#E8E4FF' : 'transparent' ?>;border-bottom:3px solid <?= $tab === 'data_pribadi_siswa' ? 'var(--brand)' : 'transparent' ?>;cursor:pointer;font-weight:<?= $tab === 'data_pribadi_siswa' ? '600' : 'normal' ?>;border-radius:4px 4px 0 0">
+			<i class="fas fa-comments"></i> Data Pribadi Siswa
+		</a>
 	</div>
 
 	<!-- Content Tab -->
@@ -42,6 +45,8 @@ $GLOBALS['conn'] = $conn;
 			<?php include '../absensi/rekap_absen.php'; ?>
 		<?php elseif($tab === 'layanan_mediasi'): ?>
 			<?php include 'layanan_mediasi_content.php'; ?>
+		<?php elseif($tab === 'data_pribadi_siswa'): ?>
+			<?php include 'data_pribadi_siswa_content.php'; ?>
 		<?php endif; ?>
 	</div>
 

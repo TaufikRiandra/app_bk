@@ -25,16 +25,14 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
 <div style="max-width:1600px; margin:0 auto; padding:20px; font-family:'Segoe UI',sans-serif;">
 
   <!-- Page Header -->
-  <div style="background:linear-gradient(135deg,#4472C4 0%,#2d5aad 100%); color:white; padding:20px 24px; border-radius:10px; margin-bottom:24px; box-shadow:0 4px 16px rgba(68,114,196,0.25);">
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
-      <div style="background:rgba(255,255,255,0.2); border-radius:8px; width:38px; height:38px; display:flex; align-items:center; justify-content:center;">
-        <i class="fas fa-star" style="font-size:1rem;"></i>
-      </div>
-      <h2 style="margin:0; font-size:1.3rem; font-weight:700;">PENILAIAN SISWA</h2>
+
+    <div style="background:var(--brand,#4472C4);color:white;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:1.25rem">
+        <h2 style="margin:0 0 4px;font-size:1.1rem;font-weight:700">
+            <i class="fa-solid fa-percent" style="margin-right:8px"></i>PENILAIAN SISWA
+        </h2>
+        <p style="margin:0;font-size:.85rem;opacity:.9">Masukkan nilai tugas siswa</p>
+        <p><?= htmlspecialchars($school_name) ?></p>
     </div>
-    <p style="margin:0 0 3px 0; font-size:13px; opacity:0.85;">Masukkan nilai tugas siswa</p>
-    <p style="margin:0; font-size:12px; opacity:0.7;"><?= htmlspecialchars($school_name) ?></p>
-  </div>
 
   <!-- Tab Navigation -->
   <div style="display:flex; gap:0; margin-bottom:24px; background:#f1f5f9; border-radius:10px; padding:5px;">

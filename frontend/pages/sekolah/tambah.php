@@ -19,7 +19,7 @@ include "../../layouts/sidebar.php";
 		<p style="color:var(--text-light);margin:0">Isi form di bawah untuk menambahkan sekolah baru ke sistem</p>
 	</div>
 
-	<form action="../../../backend/sekolah/create.php" method="POST">
+	<form action="../../../backend/pages/sekolah/create.php" method="POST">
 		<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 			<div>
 				<label for="pemerintah">Pemerintah</label>
@@ -48,8 +48,8 @@ include "../../layouts/sidebar.php";
 			</div>
 			
 			<div>
-				<label for="tahun_pelajaran">Tahun Pelajaran</label>
-				<input type="text" id="tahun_pelajaran" name="tahun_pelajaran" placeholder="2024/2025" required>
+				<label for="tahun_ajaran">Tahun Ajaran</label>
+				<input type="text" id="tahun_ajaran" name="tahun_ajaran" placeholder="2026/2027" required>
 			</div>
 		</div>
 
@@ -67,7 +67,7 @@ include "../../layouts/sidebar.php";
 		
 		<div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap">
 			<button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Simpan Data</button>
-			<a href="../../dashboard.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
+			<a href="index.php" class="btn secondary" style="text-decoration:none">← Kembali</a>
 		</div>
 	</form>
 </section>

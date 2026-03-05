@@ -2,13 +2,13 @@
 session_start();
 
 if(!isset($_SESSION['login'])){
-    header("Location: ../../auth/login.php");
+    header("Location: ../auth/login.php");
     exit;
 }
 
-include '../../../backend/config/database.php';
-include '../../layouts/header.php';
-include '../../layouts/sidebar.php';
+include '../../backend/config/database.php';
+include '../layouts/header.php';
+include '../layouts/sidebar.php';
 
 // Get all unique kelas from siswa table
 $kelas_query = "SELECT DISTINCT kelas FROM siswa WHERE kelas IS NOT NULL AND kelas != '' ORDER BY kelas";
@@ -21,7 +21,7 @@ while ($row = mysqli_fetch_assoc($kelas_result)) {
 // Get school info
 $school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
 $school = mysqli_fetch_assoc($school_result);
-$school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
+$school_name = $school['nama_sekolah'] ;
 ?>
 
 <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 20px;">
@@ -44,8 +44,8 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
                     <option value="<?= htmlspecialchars($kls) ?>"><?= htmlspecialchars($kls) ?></option>
                 <?php endforeach; ?>
             </select>
-            <button onclick="loadSiswaByKelas()" style="background-color: #4472C4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; white-space: nowrap;">
-                🔍 Load Siswa
+            <button onclick="loadSiswaByKelas()" style="background-color: #4472C4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; white-space: nowrap;" >
+                Load Siswa
             </button>
         </div>
     </div>
@@ -81,10 +81,10 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
         <!-- Buttons Section -->
         <div style="margin-top: 20px; display: flex; gap: 10px;">
             <button onclick="simpanSemuaData()" style="background-color: #28a745; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                💾 Simpan Semua Data
+                <i class="fa-solid fa-floppy-disk"></i>Simpan Semua Data
             </button>
             <button onclick="resetForm()" style="background-color: #6c757d; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                🔄 Reset
+                Reset
             </button>
         </div>
 
@@ -161,7 +161,7 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
         document.getElementById('errorState').style.display = 'none';
 
         // Fetch siswa by kelas
-        fetch('../../../backend/pages/get_siswa_by_kelas.php?kelas=' + encodeURIComponent(kelas))
+        fetch('../../backend/pages/get_siswa_by_kelas.php?kelas=' + encodeURIComponent(kelas))
             .then(response => {
                 if (!response.ok) throw new Error('Network error');
                 return response.json();
@@ -286,7 +286,7 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
             formData.append('nama_ortu', nama_ortu);
             formData.append('no_hp_ortu', no_hp_ortu);
 
-            fetch('../../../backend/pages/save_data_pribadi_inline.php', {
+            fetch('../../backend/pages/save_data_pribadi_inline.php', {
                 method: 'POST',
                 body: formData
             })
@@ -375,6 +375,6 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
 </script>
 
 <?php
-include '../../layouts/footer.php';
+include '../layouts/footer.php';
 ?>
 

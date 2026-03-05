@@ -20,7 +20,7 @@ $user_role = $_SESSION['role'] ?? 'guru_bk';
 // Get school info
 $school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
 $school = mysqli_fetch_assoc($school_result);
-$school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
+$school_name = $school['nama_sekolah'] ?? '';
 
 // Get list of guru BK for dropdown (only if admin)
 $guru_bk_list = [];
@@ -50,9 +50,12 @@ unset($_SESSION['mediasi_data']);
 
 <div class="mediasi-container">
     <!-- Header Section -->
-    <div class="mediasi-header">
-        <h2>LAYANAN MEDIASI</h2>
-        <p>Bimbingan dan Konseling</p>
+
+    <div style="background:var(--brand,#4472C4);color:white;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:1.25rem">
+        <h2 style="margin:0 0 4px;font-size:1.1rem;font-weight:700">
+            <i class="fas fa-book-open" style="margin-right:8px"></i>LAYANAN MEDIASI
+        </h2>
+        <p style="margin:0;font-size:.85rem;opacity:.9">Bimbingan dan Konseling</p>
         <p><?= htmlspecialchars($school_name) ?></p>
     </div>
 

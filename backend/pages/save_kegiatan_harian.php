@@ -1,248 +1,195 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 ob_clean();
-
 session_start();
-include '../config/database.php';
+include __DIR__ . '/../config/database.php';
 
-// Check authorization
-if (!isset($_SESSION['login']) || !$_SESSION['login']) {
+if (!isset($_SESSION['login'])) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
+    exit;
 }
 
-$user_role = $_SESSION['role'] ?? 'guru_bk';
-$mode = $_POST['mode'] ?? 'save_kegiatan';
-
-// For set_guru_bk mode: only admin can do this
-if ($mode === 'set_guru_bk' && $user_role !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Hanya admin yang bisa menetapkan guru BK']);
-    exit();
-}
-
-// For save_kegiatan mode: both admin and guru_bk can do this
-if ($mode === 'save_kegiatan' && $user_role === 'guru_bk') {
-    // Guru_bk saving kegiatan is allowed
-} else if ($mode === 'save_kegiatan' && $user_role === 'admin') {
-    // Admin saving kegiatan is allowed
-} else if ($mode !== 'set_guru_bk') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki akses']);
-    exit();
-}
-
-$tanggal = $_POST['tanggal'] ?? '';
+$user_role  = $_SESSION['role'] ?? 'guru_bk';
+$mode       = $_POST['mode'] ?? 'save_kegiatan';
+$tanggal    = $_POST['tanggal'] ?? '';
 $id_guru_bk = intval($_POST['id_guru_bk'] ?? 0);
-$kegiatan_json = $_POST['kegiatan_json'] ?? '[]';
 
-// Validasi tanggal
 if (!$tanggal || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Tanggal tidak valid']);
-    exit();
+    exit;
 }
 
-// Handle set_guru_bk mode (admin only)
+$t = mysqli_real_escape_string($conn, $tanggal);
+
+/* ═══════════════════════════════════════════════
+   MODE: set_guru_bk  (admin only)
+   Simpan ke tabel guru_bk_jadwal supaya persisten
+   ═══════════════════════════════════════════════ */
 if ($mode === 'set_guru_bk') {
-    if ($id_guru_bk <= 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'ID Guru BK tidak valid']);
-        exit();
+    if ($user_role !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Hanya admin yang dapat menetapkan guru BK']);
+        exit;
     }
-    
-    // Just verify guru_bk exists and return success
-    $query = "SELECT nama FROM guru_bk WHERE id_guru_bk = $id_guru_bk";
-    $result = mysqli_query($conn, $query);
-    if (!$result || !($row = mysqli_fetch_assoc($result))) {
+
+    $id_user_admin = intval($_SESSION['id_user'] ?? 0);
+
+    if ($id_guru_bk === 0) {
+        // "Tidak Ada" dipilih — simpan NULL
+        $q = mysqli_query($conn,
+            "INSERT INTO guru_bk_jadwal (tanggal, id_guru_bk, ditetapkan_oleh)
+             VALUES ('$t', NULL, $id_user_admin)
+             ON DUPLICATE KEY UPDATE id_guru_bk = NULL, ditetapkan_oleh = $id_user_admin"
+        );
+        if (!$q) { http_response_code(500); echo json_encode(['success'=>false,'message'=>mysqli_error($conn)]); exit; }
+        echo json_encode(['success' => true, 'message' => 'Tanggal ini dikosongkan', 'guru_bk_name' => null, 'id_guru_bk' => 0]);
+        exit;
+    }
+
+    // Verifikasi guru_bk ada
+    $r = mysqli_query($conn, "SELECT nama FROM guru_bk WHERE id_guru_bk = $id_guru_bk");
+    if (!$r || !($row = mysqli_fetch_assoc($r))) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Guru BK tidak ditemukan']);
-        exit();
+        exit;
     }
-    
+    $nama_guru = $row['nama'];
+
+    $q = mysqli_query($conn,
+        "INSERT INTO guru_bk_jadwal (tanggal, id_guru_bk, ditetapkan_oleh)
+         VALUES ('$t', $id_guru_bk, $id_user_admin)
+         ON DUPLICATE KEY UPDATE id_guru_bk = $id_guru_bk, ditetapkan_oleh = $id_user_admin"
+    );
+    if (!$q) { http_response_code(500); echo json_encode(['success'=>false,'message'=>mysqli_error($conn)]); exit; }
+
     echo json_encode([
-        'success' => true,
-        'message' => 'Guru BK ditetapkan bertugas',
-        'guru_bk_name' => $row['nama']
+        'success'      => true,
+        'message'      => $nama_guru . ' ditetapkan bertugas',
+        'guru_bk_name' => $nama_guru,
+        'id_guru_bk'   => $id_guru_bk,
     ]);
-    exit();
+    exit;
 }
 
-// Handle save_kegiatan mode (both admin and guru_bk)
+/* ═══════════════════════════════════════════════
+   MODE: save_kegiatan
+   Hanya guru yang DITETAPKAN untuk tanggal tsb & admin
+   ═══════════════════════════════════════════════ */
 if ($mode === 'save_kegiatan') {
-    // For guru_bk, get id_guru_bk from first guru_bk record (simplified)
+
     if ($user_role === 'guru_bk') {
-        $query = "SELECT id_guru_bk FROM guru_bk LIMIT 1";
-        $result = mysqli_query($conn, $query);
-        if ($result && ($row = mysqli_fetch_assoc($result))) {
-            $id_guru_bk = $row['id_guru_bk'];
-        } else {
-            http_response_code(404);
-            echo json_encode(['success' => false, 'message' => 'Guru BK tidak ditemukan']);
-            exit();
+        $id_guru_bk = intval($_SESSION['id_guru_bk'] ?? 0);
+        if (!$id_guru_bk) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Profil guru BK tidak ditemukan di sesi']);
+            exit;
         }
+        // Cek penetapan
+        $jq = mysqli_query($conn, "SELECT id_guru_bk FROM guru_bk_jadwal WHERE tanggal = '$t' LIMIT 1");
+        $jadwal = $jq ? mysqli_fetch_assoc($jq) : null;
+        if (!$jadwal || intval($jadwal['id_guru_bk']) !== $id_guru_bk) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Anda tidak ditetapkan bertugas untuk tanggal ini. Hubungi admin.']);
+            exit;
+        }
+
+    } elseif ($user_role === 'admin') {
+        if ($id_guru_bk <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Pilih Guru BK terlebih dahulu']);
+            exit;
+        }
+    } else {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Akses ditolak']);
+        exit;
     }
-    
-    if ($id_guru_bk <= 0) {
+
+    $kegiatan_json = $_POST['kegiatan_json'] ?? '[]';
+    $kegiatan_data = json_decode($kegiatan_json, true);
+    if (!is_array($kegiatan_data) || empty($kegiatan_data)) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'ID Guru BK tidak valid']);
-        exit();
-    }
-}
-
-// Parse kegiatan JSON
-$kegiatan_data = json_decode($kegiatan_json, true);
-if (!is_array($kegiatan_data) || empty($kegiatan_data)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Data kegiatan tidak valid']);
-    exit();
-}
-
-try {
-    mysqli_begin_transaction($conn);
-
-    $tanggal_escaped = mysqli_real_escape_string($conn, $tanggal);
-    
-    // Load existing kegiatan for this date and guru
-    $existing_kegiatan = [];
-    $query = "SELECT id_kegiatan, waktu_mulai, waktu_selesai, uraian_kegiatan, jenis_layanan, sasaran_layanan, bidang_kode_layanan, hasil, keterangan 
-              FROM kegiatan_harian 
-              WHERE tanggal = '$tanggal_escaped' AND id_guru_bk = $id_guru_bk
-              ORDER BY waktu_mulai ASC";
-    
-    $result = mysqli_query($conn, $query);
-    if (!$result) {
-        throw new Exception('Query error: ' . mysqli_error($conn));
+        echo json_encode(['success' => false, 'message' => 'Data kegiatan tidak valid atau kosong']);
+        exit;
     }
 
-    while ($row = mysqli_fetch_assoc($result)) {
-        $existing_kegiatan[] = $row;
-    }
+    try {
+        mysqli_begin_transaction($conn);
 
-    // Counters
-    $updated_count = 0;
-    $added_count = 0;
-    $deleted_count = 0;
+        $existing = [];
+        $eq = mysqli_query($conn,
+            "SELECT id_kegiatan FROM kegiatan_harian WHERE tanggal='$t' AND id_guru_bk=$id_guru_bk"
+        );
+        while ($row = mysqli_fetch_assoc($eq)) $existing[] = intval($row['id_kegiatan']);
 
-    // Track yang sudah diproses dari kegiatan baru
-    $processed_ids = [];
+        $added = $updated = $deleted = 0;
+        $processed_ids = [];
 
-    // Process new kegiatan data
-    foreach ($kegiatan_data as $idx => $new_k) {
-        $waktu_mulai = trim($new_k['waktu_mulai'] ?? '');
-        $waktu_selesai = trim($new_k['waktu_selesai'] ?? '');
-        $uraian_kegiatan = trim($new_k['uraian_kegiatan'] ?? '');
-        $jenis_layanan = trim($new_k['jenis_layanan'] ?? '');
-        $sasaran_layanan = trim($new_k['sasaran_layanan'] ?? '');
-        $bidang_kode_layanan = trim($new_k['bidang_kode_layanan'] ?? '');
-        $hasil = trim($new_k['hasil'] ?? '');
-        $keterangan = trim($new_k['keterangan'] ?? '');
-        $id_kegiatan = $new_k['id_kegiatan'] ?? 'new';
+        foreach ($kegiatan_data as $k) {
+            $wm  = mysqli_real_escape_string($conn, trim($k['waktu_mulai']         ?? ''));
+            $ws  = mysqli_real_escape_string($conn, trim($k['waktu_selesai']       ?? ''));
+            $ur  = mysqli_real_escape_string($conn, trim($k['uraian_kegiatan']     ?? ''));
+            $jl  = mysqli_real_escape_string($conn, trim($k['jenis_layanan']       ?? ''));
+            $sl  = mysqli_real_escape_string($conn, trim($k['sasaran_layanan']     ?? ''));
+            $bl  = mysqli_real_escape_string($conn, trim($k['bidang_kode_layanan'] ?? ''));
+            $hs  = mysqli_real_escape_string($conn, trim($k['hasil']               ?? ''));
+            $ket = mysqli_real_escape_string($conn, trim($k['keterangan']          ?? ''));
+            $id_k = $k['id_kegiatan'] ?? 'new';
 
-        // Minimal harus ada waktu_mulai atau uraian_kegiatan
-        if (empty($waktu_mulai) && empty($uraian_kegiatan)) {
-            continue;
-        }
+            if (empty($wm) && empty($ur)) continue;
 
-        if ($id_kegiatan !== 'new') {
-            // UPDATE: kegiatan sudah ada di DB
-            $id_kegiatan = intval($id_kegiatan);
-            $processed_ids[] = $id_kegiatan;
-
-            // Check if this kegiatan exists
-            $check_query = "SELECT id_kegiatan FROM kegiatan_harian WHERE id_kegiatan = $id_kegiatan AND id_guru_bk = $id_guru_bk";
-            $check_result = mysqli_query($conn, $check_query);
-            
-            if (mysqli_num_rows($check_result) > 0) {
-                // Update kegiatan
-                $waktu_mulai_esc = mysqli_real_escape_string($conn, $waktu_mulai);
-                $waktu_selesai_esc = mysqli_real_escape_string($conn, $waktu_selesai);
-                $uraian_esc = mysqli_real_escape_string($conn, $uraian_kegiatan);
-                $jenis_layanan_esc = mysqli_real_escape_string($conn, $jenis_layanan);
-                $sasaran_layanan_esc = mysqli_real_escape_string($conn, $sasaran_layanan);
-                $bidang_kode_layanan_esc = mysqli_real_escape_string($conn, $bidang_kode_layanan);
-                $hasil_esc = mysqli_real_escape_string($conn, $hasil);
-                $keterangan_esc = mysqli_real_escape_string($conn, $keterangan);
-
-                $update_query = "UPDATE kegiatan_harian 
-                                SET waktu_mulai = '$waktu_mulai_esc',
-                                    waktu_selesai = '$waktu_selesai_esc',
-                                    uraian_kegiatan = '$uraian_esc',
-                                    jenis_layanan = '$jenis_layanan_esc',
-                                    sasaran_layanan = '$sasaran_layanan_esc',
-                                    bidang_kode_layanan = '$bidang_kode_layanan_esc',
-                                    hasil = '$hasil_esc',
-                                    keterangan = '$keterangan_esc'
-                                WHERE id_kegiatan = $id_kegiatan";
-
-                if (!mysqli_query($conn, $update_query)) {
-                    throw new Exception('Update kegiatan error: ' . mysqli_error($conn));
+            if ($id_k !== 'new') {
+                $id_k = intval($id_k);
+                $processed_ids[] = $id_k;
+                $chk = mysqli_query($conn,
+                    "SELECT id_kegiatan FROM kegiatan_harian WHERE id_kegiatan=$id_k AND id_guru_bk=$id_guru_bk"
+                );
+                if (mysqli_num_rows($chk) > 0) {
+                    if (!mysqli_query($conn,
+                        "UPDATE kegiatan_harian SET
+                            waktu_mulai='$wm', waktu_selesai='$ws', uraian_kegiatan='$ur',
+                            jenis_layanan='$jl', sasaran_layanan='$sl', bidang_kode_layanan='$bl',
+                            hasil='$hs', keterangan='$ket'
+                         WHERE id_kegiatan=$id_k"
+                    )) throw new Exception(mysqli_error($conn));
+                    $updated++;
                 }
-                $updated_count++;
+            } else {
+                if (!mysqli_query($conn,
+                    "INSERT INTO kegiatan_harian
+                        (tanggal, id_guru_bk, waktu_mulai, waktu_selesai, uraian_kegiatan,
+                         jenis_layanan, sasaran_layanan, bidang_kode_layanan, hasil, keterangan)
+                     VALUES ('$t', $id_guru_bk, '$wm', '$ws', '$ur', '$jl', '$sl', '$bl', '$hs', '$ket')"
+                )) throw new Exception(mysqli_error($conn));
+                $added++;
             }
-        } else {
-            // INSERT: kegiatan baru
-            $waktu_mulai_esc = mysqli_real_escape_string($conn, $waktu_mulai);
-            $waktu_selesai_esc = mysqli_real_escape_string($conn, $waktu_selesai);
-            $uraian_esc = mysqli_real_escape_string($conn, $uraian_kegiatan);
-            $jenis_layanan_esc = mysqli_real_escape_string($conn, $jenis_layanan);
-            $sasaran_layanan_esc = mysqli_real_escape_string($conn, $sasaran_layanan);
-            $bidang_kode_layanan_esc = mysqli_real_escape_string($conn, $bidang_kode_layanan);
-            $hasil_esc = mysqli_real_escape_string($conn, $hasil);
-            $keterangan_esc = mysqli_real_escape_string($conn, $keterangan);
-
-            $insert_query = "INSERT INTO kegiatan_harian (tanggal, id_guru_bk, waktu_mulai, waktu_selesai, uraian_kegiatan, jenis_layanan, sasaran_layanan, bidang_kode_layanan, hasil, keterangan)
-                            VALUES ('$tanggal_escaped', $id_guru_bk, '$waktu_mulai_esc', '$waktu_selesai_esc', '$uraian_esc', '$jenis_layanan_esc', '$sasaran_layanan_esc', '$bidang_kode_layanan_esc', '$hasil_esc', '$keterangan_esc')";
-
-            if (!mysqli_query($conn, $insert_query)) {
-                throw new Exception('Insert kegiatan error: ' . mysqli_error($conn));
-            }
-            $added_count++;
         }
-    }
 
-    // DELETE kegiatan yang tidak ada di form baru
-    foreach ($existing_kegiatan as $old_k) {
-        if (!in_array($old_k['id_kegiatan'], $processed_ids)) {
-            $id_k = intval($old_k['id_kegiatan']);
-            $delete_query = "DELETE FROM kegiatan_harian WHERE id_kegiatan = $id_k";
-            
-            if (!mysqli_query($conn, $delete_query)) {
-                throw new Exception('Delete kegiatan error: ' . mysqli_error($conn));
+        foreach ($existing as $eid) {
+            if (!in_array($eid, $processed_ids)) {
+                if (!mysqli_query($conn, "DELETE FROM kegiatan_harian WHERE id_kegiatan=$eid"))
+                    throw new Exception(mysqli_error($conn));
+                $deleted++;
             }
-            $deleted_count++;
         }
+
+        mysqli_commit($conn);
+
+        $parts = [];
+        if ($updated) $parts[] = "$updated diubah";
+        if ($added)   $parts[] = "$added ditambah";
+        if ($deleted) $parts[] = "$deleted dihapus";
+
+        echo json_encode(['success' => true, 'message' => $parts ? implode(', ', $parts) : 'Tidak ada perubahan']);
+
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
     }
-
-    mysqli_commit($conn);
-
-    // Build message
-    $message = "";
-    if ($updated_count > 0) $message .= "$updated_count kegiatan diubah";
-    if ($added_count > 0) {
-        if ($message) $message .= ", ";
-        $message .= "$added_count kegiatan ditambah";
-    }
-    if ($deleted_count > 0) {
-        if ($message) $message .= ", ";
-        $message .= "$deleted_count kegiatan dihapus";
-    }
-    if (!$message) $message = "Tidak ada perubahan";
-
-    echo json_encode([
-        'success' => true,
-        'message' => $message,
-        'updated' => $updated_count,
-        'added' => $added_count,
-        'deleted' => $deleted_count
-    ]);
-
-} catch (Exception $e) {
-    mysqli_rollback($conn);
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Error: ' . $e->getMessage()
-    ]);
+    exit;
 }
+
+echo json_encode(['success' => false, 'message' => 'Mode tidak dikenali']);

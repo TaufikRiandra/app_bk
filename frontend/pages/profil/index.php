@@ -1,7 +1,7 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (!isset($_SESSION['login'])) {
-    header('Location: /frontend/auth/login.php'); exit;
+    header('Location: ../../auth/login.php'); exit;
 }
 include '../../../backend/config/database.php';
 include '../../layouts/header.php';
@@ -135,7 +135,7 @@ function uploadFoto(input) {
     msg.style.background = '#f0f9ff';
     msg.style.color = '#0369a1';
 
-    fetch('/backend/pages/update_profil.php', { method: 'POST', body: fd })
+    fetch('../../../backend/pages/update_profil.php', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
             if (data.success) {

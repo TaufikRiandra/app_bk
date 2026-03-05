@@ -10,16 +10,21 @@ include "../../../backend/config/database.php";
 include "../../layouts/header.php";
 include "../../layouts/sidebar.php";
 
+// Get school info
+$school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
+$school = mysqli_fetch_assoc($school_result);
+$school_name = $school['nama_sekolah'] ?? '';
+
 $tab = isset($_GET['tab']) ? $_GET['tab'] : 'data_siswa';
 // Make $conn global for included files
 $GLOBALS['conn'] = $conn;
 ?>
 
-<div>
-	<div style="margin-bottom:2rem">
-		<h1 style="margin-bottom:0.25rem;font-size:1.75rem"><i class="fas fa-clipboard-list"></i> Absensi</h1>
-		<p style="color:var(--text-light);margin:0">Kelola data siswa, absensi, dan rekap absensi</p>
-	</div>
+    <div style="background-color: #4472C4; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h2 style="margin: 0 0 10px 0; font-size: 18px;"><i class="fas fa-clipboard-list"></i> Absensi</h2>
+        <p style="margin: 0 0 5px 0; font-size: 14px;">Kelola data siswa, absensi, dan rekap absensi</p>
+        <p style="margin: 0; font-size: 13px; opacity: 0.9;"><?= htmlspecialchars($school_name) ?></p>
+    </div>
 
 	<!-- Tab Navigation -->
 	<div style="display:flex;gap:0;margin-bottom:2rem;border-bottom:2px solid var(--border);flex-wrap:wrap">

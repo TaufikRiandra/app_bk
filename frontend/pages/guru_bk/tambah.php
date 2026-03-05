@@ -24,7 +24,7 @@ include '../../layouts/sidebar.php';
         </div>
     <?php endif; ?>
 
-    <form action="/backend/pages/sekolah/guru_bk/create.php" method="POST" enctype="multipart/form-data">
+    <form action="/backend/pages/guru_bk/create.php" method="POST" enctype="multipart/form-data">
 
         <!-- ── Data Akun ── -->
         <h3 style="font-size:1rem;margin-bottom:1rem;color:var(--text-light);border-bottom:1px solid var(--border);padding-bottom:0.5rem">

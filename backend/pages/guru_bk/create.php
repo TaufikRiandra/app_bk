@@ -4,7 +4,7 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] !== 'admin') {
     header('Location: /frontend/dashboard.php');
     exit;
 }
-include '../../../config/database.php';
+include '../../config/database.php';
 
 $username  = trim($_POST['username'] ?? '');
 $password  = trim($_POST['password'] ?? '');

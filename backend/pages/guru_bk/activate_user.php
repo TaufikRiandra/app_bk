@@ -6,7 +6,7 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 header('Content-Type: application/json');
-include '../../../config/database.php';
+include '../../config/database.php';
 
 $id_user  = intval($_POST['id_user'] ?? 0);
 $is_active = intval($_POST['is_active'] ?? 0); // 1 = aktifkan, 0 = nonaktifkan
