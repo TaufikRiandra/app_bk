@@ -51,7 +51,7 @@ $all_kelas = array_merge($kelas_7, $kelas_8, $kelas_9);
 		Belum ada guru BK ? <a href="tambah.php" style="font-weight:600;color:#b45309;text-decoration:none">Tambah Guru BK di sini</a>
 	</div>
 
-	<form action="../../../backend/sekolah/set_bk.php" method="POST">
+	<form action="../../../backend/pages/guru_bk/set_bk.php" method="POST">
 		<label for="id_sekolah" style="display:block;margin-bottom:0.5rem;font-weight:600">Pilih Sekolah <span style="color:#ef4444">*</span></label>
 		<select id="id_sekolah" name="id_sekolah" required style="width:100%;padding:0.75rem;border:1px solid var(--border);border-radius:6px;font-size:1rem;margin-bottom:1.5rem;box-sizing:border-box">
 			<option value="">-- Pilih Sekolah --</option>
