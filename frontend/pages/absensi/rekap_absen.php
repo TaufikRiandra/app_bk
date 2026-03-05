@@ -6,7 +6,7 @@ $semester_terpilih = isset($_GET['semester']) ? htmlspecialchars($_GET['semester
 // Get database connection
 $conn = $GLOBALS['conn'] ?? null;
 if(!$conn) {
-	include "../../backend/config/database.php";
+	include "../../../backend/config/database.php";
 }
 
 // Ambil data sekolah
@@ -187,13 +187,13 @@ if(!$kelas_terpilih): ?>
 		function exportToExcel() {
 			const kelas = '<?= $kelas_terpilih ?>';
 			const semester = '<?= $semester_terpilih ?>';
-			window.location.href = '../../backend/absensi/export_excel.php?kelas=' + encodeURIComponent(kelas) + '&semester=' + encodeURIComponent(semester);
+			window.location.href = '../../../backend/pages/export_absen_excel.php?kelas=' + encodeURIComponent(kelas) + '&semester=' + encodeURIComponent(semester);
 		}
 
 		function exportToPDF() {
 			const kelas = '<?= $kelas_terpilih ?>';
 			const semester = '<?= $semester_terpilih ?>';
-			window.open('../../backend/absensi/export_pdf.php?kelas=' + encodeURIComponent(kelas) + '&semester=' + encodeURIComponent(semester), '_blank');
+			window.open('../../../backend/pages/export_absen_pdf.php?kelas=' + encodeURIComponent(kelas) + '&semester=' + encodeURIComponent(semester), '_blank');
 		}
 	</script>
 

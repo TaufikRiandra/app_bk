@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['login'])){
-    header("Location: ../auth/login.php");
+    header("Location: ../../auth/login.php");
     exit;
 }
 // Proteksi: hanya admin yang bisa set BK
@@ -9,9 +9,9 @@ if(isset($_SESSION['role']) && $_SESSION['role'] !== 'admin'){
     header("Location: /frontend/dashboard.php");
     exit;
 }
-include "../../backend/config/database.php";
-include "../layouts/header.php";
-include "../layouts/sidebar.php";
+include "../../../backend/config/database.php";
+include "../../layouts/header.php";
+include "../../layouts/sidebar.php";
 
 // Get all schools
 $sekolah_data = mysqli_query($conn, "SELECT DISTINCT id_sekolah, nama_sekolah FROM sekolah ORDER BY nama_sekolah");
@@ -48,10 +48,10 @@ $all_kelas = array_merge($kelas_7, $kelas_8, $kelas_9);
 
 	<!-- Info: Manage Guru BK -->
 	<div style="padding:1rem;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;margin-bottom:1.5rem;color:#78350f">
-		ℹ️ Belum ada guru BK? <a href="./guru_bk/tambah.php" style="font-weight:600;color:#b45309;text-decoration:none">Tambah Guru BK di sini</a>
+		Belum ada guru BK ? <a href="tambah.php" style="font-weight:600;color:#b45309;text-decoration:none">Tambah Guru BK di sini</a>
 	</div>
 
-	<form action="../../backend/sekolah/set_bk.php" method="POST">
+	<form action="../../../backend/sekolah/set_bk.php" method="POST">
 		<label for="id_sekolah" style="display:block;margin-bottom:0.5rem;font-weight:600">Pilih Sekolah <span style="color:#ef4444">*</span></label>
 		<select id="id_sekolah" name="id_sekolah" required style="width:100%;padding:0.75rem;border:1px solid var(--border);border-radius:6px;font-size:1rem;margin-bottom:1.5rem;box-sizing:border-box">
 			<option value="">-- Pilih Sekolah --</option>
@@ -100,6 +100,6 @@ $all_kelas = array_merge($kelas_7, $kelas_8, $kelas_9);
 	</form>
 </section>
 
-<?php include "../layouts/footer.php"; ?>
+<?php include "../../layouts/footer.php"; ?>
 
 

@@ -50,6 +50,11 @@ function isActive($path) {
                 </a>
             </li>
             <li>
+                <a href="/frontend/pages/sekolah/kelas.php" class="sidebar-link <?= isActive('/kelas') ?>">
+                    <i class="fas fa-book"></i> Data Kelas
+                </a>
+            </li>
+            <li>
                 <a href="/frontend/pages/absensi/index.php" class="sidebar-link <?= isActive('/absensi') ?>">
                     <i class="fas fa-clipboard-list"></i> Absensi
                 </a>
@@ -65,7 +70,7 @@ function isActive($path) {
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/layanan_mediasi_manual.php" class="sidebar-link <?= isActive('/mediasi') ?>">
+                <a href="/frontend/pages/layanan/index.php" class="sidebar-link <?= isActive('/mediasi') ?>">
                     <i class="fas fa-handshake"></i> Layanan
                 </a>
             </li>
@@ -74,18 +79,12 @@ function isActive($path) {
                 <li class="sidebar-divider" style="border-top:1px solid rgba(255,255,255,0.1);margin:0.5rem 0"></li>
                 <li>
                     <a href="/frontend/pages/sekolah/index.php" class="sidebar-link <?= isActive('/sekolah') ?>">
-                        <i class="fas fa-school"></i> Data Sekolah
+                        <i class="fas fa-school"></i> (Admin !) Data Sekolah
                     </a>
                 </li>
                 <li>
                     <a href="/frontend/pages/guru_bk/index.php" class="sidebar-link <?= isActive('/guru_bk') ?>">
-                        <i class="fas fa-chalkboard-user"></i> Kelola Guru BK
-                    </a>
-                </li>
-            <?php elseif ($role === 'guru_bk'): ?>
-                <li>
-                    <a href="/frontend/pages/sekolah/kelas.php" class="sidebar-link <?= isActive('/kelas') ?>">
-                        <i class="fas fa-book"></i> Data Kelas
+                        <i class="fas fa-chalkboard-user"></i> (Admin !) Kelola Guru BK
                     </a>
                 </li>
             <?php endif; ?>

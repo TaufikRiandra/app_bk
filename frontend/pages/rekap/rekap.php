@@ -13,13 +13,21 @@ include "../../layouts/sidebar.php";
 $tab = isset($_GET['tab']) ? $_GET['tab'] : 'kegiatan_harian';
 // Make $conn global for included files
 $GLOBALS['conn'] = $conn;
+
+// Get school info
+$school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
+$school = mysqli_fetch_assoc($school_result);
+$school_name = $school['nama_sekolah'] ?? '';
+
 ?>
 
-<div>
-	<div style="margin-bottom:2rem">
-		<h1 style="margin-bottom:0.25rem;font-size:1.75rem"><i class="fas fa-chart-pie"></i> Rekap Layanan Bimbingan</h1>
-		<p style="color:var(--text-light);margin:0">Lihat rekap semua layanan bimbingan yang telah diberikan</p>
-	</div>
+    <div style="background:var(--brand,#4472C4);color:white;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:1.25rem">
+        <h2 style="margin:0 0 4px;font-size:1.1rem;font-weight:700">
+            <i class="fas fa-chart-pie"></i> REKAP LAYANAN BIMBINGAN
+        </h2>
+        <p style="margin:0;font-size:.85rem;opacity:.9">Lihat rekap semua layanan bimbingan yang telah diberikan</p>
+        <p><?= htmlspecialchars($school_name) ?></p>
+    </div>
 
 	<!-- Tab Navigation -->
 	<div style="display:flex;gap:0;margin-bottom:2rem;border-bottom:2px solid var(--border);flex-wrap:wrap">

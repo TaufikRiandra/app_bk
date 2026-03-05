@@ -21,7 +21,7 @@ while ($row = mysqli_fetch_assoc($kelas_result)) {
 // Get school info
 $school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
 $school = mysqli_fetch_assoc($school_result);
-$school_name = $school['nama_sekolah'] ;
+$school_name = $school['nama_sekolah'];
 ?>
 
 <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 20px;">
@@ -44,44 +44,47 @@ $school_name = $school['nama_sekolah'] ;
                     <option value="<?= htmlspecialchars($kls) ?>"><?= htmlspecialchars($kls) ?></option>
                 <?php endforeach; ?>
             </select>
-            <button onclick="loadSiswaByKelas()" style="background-color: #4472C4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; white-space: nowrap;" >
+            <button onclick="loadSiswaByKelas()" style="background-color: #4472C4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; white-space: nowrap;">
                 Load Siswa
             </button>
         </div>
     </div>
 
     <!-- Students Table Section -->
-    <div id="siswaContainer" style="display: none; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
+    <div id="siswaContainer" style="display: none; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <div style="margin-bottom: 15px;">
             <h3 style="margin: 0; font-size: 16px; color: #333;">
                 Daftar Siswa <span id="kelasLabel"></span> - Total: <span id="siswaCount">0</span> siswa
             </h3>
         </div>
 
-        <table id="tabelDataPribadi" style="width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed;">
-            <thead>
-                <tr style="background-color: #FFC000; color: black; font-weight: 600;">
-                    <th style="padding: 14px; text-align: center; border: 1px solid #ddd; width: 50px;">No</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 140px;">Nama</th>
-                    <th style="padding: 14px; text-align: center; border: 1px solid #ddd; width: 80px;">L/P</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 140px;">Tempat/Tgl Lahir</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 180px;">Alamat</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 100px;">Agama</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 140px;">Sekolah Asal</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 120px;">No. Hp</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 150px;">Nama Ortu</th>
-                    <th style="padding: 14px; text-align: left; border: 1px solid #ddd; min-width: 120px;">No. Hp Ortu</th>
-                </tr>
-            </thead>
-            <tbody id="tabelSiswaBody">
-                <!-- Rows akan di-load di sini -->
-            </tbody>
-        </table>
+        <!-- Scroll wrapper -->
+        <div style="overflow-x: auto; width: 100%;">
+            <table id="tabelDataPribadi" style="border-collapse: collapse; font-size: 13px; width: max-content; min-width: 100%;">
+                <thead>
+                    <tr style="background-color: #FFC000; color: black; font-weight: 600;">
+                        <th style="padding: 14px 12px; text-align: center; border: 1px solid #ddd; min-width: 50px; white-space: nowrap;">No</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 200px; white-space: nowrap;">Nama</th>
+                        <th style="padding: 14px 12px; text-align: center; border: 1px solid #ddd; min-width: 90px; white-space: nowrap;">L/P</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 230px; white-space: nowrap;">Tempat/Tgl Lahir</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 260px; white-space: nowrap;">Alamat</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 150px; white-space: nowrap;">Agama</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 200px; white-space: nowrap;">Sekolah Asal</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 160px; white-space: nowrap;">No. Hp</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 200px; white-space: nowrap;">Nama Ortu</th>
+                        <th style="padding: 14px 12px; text-align: left; border: 1px solid #ddd; min-width: 160px; white-space: nowrap;">No. Hp Ortu</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelSiswaBody">
+                    <!-- Rows akan di-load di sini -->
+                </tbody>
+            </table>
+        </div>
 
         <!-- Buttons Section -->
         <div style="margin-top: 20px; display: flex; gap: 10px;">
             <button onclick="simpanSemuaData()" style="background-color: #28a745; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                <i class="fa-solid fa-floppy-disk"></i>Simpan Semua Data
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Semua Data
             </button>
             <button onclick="resetForm()" style="background-color: #6c757d; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px;">
                 Reset
@@ -110,36 +113,57 @@ $school_name = $school['nama_sekolah'] ;
         padding: 20px;
     }
 
-    input[type="text"], input[type="date"], select, textarea {
+    /* Input, select, textarea lebih lega dan jelas */
+    #tabelDataPribadi input[type="text"],
+    #tabelDataPribadi input[type="date"],
+    #tabelDataPribadi select,
+    #tabelDataPribadi textarea {
         font-family: inherit;
         font-size: 13px;
-        padding: 10px;
-        border: 1px solid #ddd;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
         border-radius: 4px;
         box-sizing: border-box;
-        line-height: 1.5;
+        background-color: #fafafa;
+        width: 100%;
+        min-width: 0;
+        display: block;
     }
 
-    input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+    #tabelDataPribadi input[type="text"]:focus,
+    #tabelDataPribadi input[type="date"]:focus,
+    #tabelDataPribadi select:focus,
+    #tabelDataPribadi textarea:focus {
         outline: none;
         border-color: #4472C4;
-        box-shadow: 0 0 0 2px rgba(68, 114, 196, 0.1);
+        background-color: #fff;
+        box-shadow: 0 0 0 2px rgba(68, 114, 196, 0.15);
     }
 
-    .tabel-data-pribadi {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
+    #tabelDataPribadi textarea {
+        min-height: 85px;
+        resize: vertical;
     }
 
-    .tabel-data-pribadi td {
-        padding: 12px;
+    #tabelDataPribadi td {
+        padding: 12px 10px;
         border: 1px solid #ddd;
+        vertical-align: top;
     }
 
-    .tabel-data-pribadi input, .tabel-data-pribadi select {
-        width: 100%;
-        box-sizing: border-box;
+    #tabelDataPribadi tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    #tabelDataPribadi tr:hover {
+        background-color: #f0f5ff;
+    }
+
+    .label-input {
+        font-size: 11px;
+        color: #888;
+        margin-bottom: 4px;
+        display: block;
     }
 </style>
 
@@ -155,12 +179,10 @@ $school_name = $school['nama_sekolah'] ;
             return;
         }
 
-        // Show loading state
         document.getElementById('siswaContainer').style.display = 'none';
         document.getElementById('emptyState').style.display = 'none';
         document.getElementById('errorState').style.display = 'none';
 
-        // Fetch siswa by kelas
         fetch('../../backend/pages/get_siswa_by_kelas.php?kelas=' + encodeURIComponent(kelas))
             .then(response => {
                 if (!response.ok) throw new Error('Network error');
@@ -199,26 +221,32 @@ $school_name = $school['nama_sekolah'] ;
         siswa.forEach((row, index) => {
             html += `
                 <tr data-id="${row.id_siswa}">
-                    <td style="text-align: center; padding: 14px; border: 1px solid #ddd; vertical-align: middle; width: 50px;">${index + 1}</td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: middle;">
-                        <strong>${htmlEscape(row.nama_siswa)}</strong>
+                    <td style="text-align: center; vertical-align: middle; min-width: 50px;">
+                        ${index + 1}
                     </td>
-                    <td style="text-align: center; padding: 14px; border: 1px solid #ddd; vertical-align: middle; width: 80px;">
-                        <select class="col-jk" style="width: 100%; font-size: 14px; font-weight: 600;">
+                    <td style="vertical-align: middle; min-width: 200px;">
+                        <strong style="font-size: 13px;">${htmlEscape(row.nama_siswa)}</strong>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle; min-width: 90px;">
+                        <select class="col-jk">
                             <option value="L" ${row.jk === 'L' ? 'selected' : ''}>L</option>
                             <option value="P" ${row.jk === 'P' ? 'selected' : ''}>P</option>
                         </select>
                     </td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: top;">
-                        <div style="font-size: 12px; margin-bottom: 8px;">Tempat: <input type="text" class="col-tempat_lahir" value="${htmlEscape(row.tempat_lahir || '')}" placeholder="Kota" style="width: 90%; margin-top: 3px;"></div>
-                        <div style="font-size: 12px;">Tgl: <input type="date" class="col-tgl_lahir" value="${row.tgl_lahir || ''}" style="width: 90%; margin-top: 3px;"></div>
+                    <td style="min-width: 230px;">
+                        <span class="label-input">Tempat Lahir</span>
+                        <input type="text" class="col-tempat_lahir" value="${htmlEscape(row.tempat_lahir || '')}" placeholder="Kota" style="margin-bottom: 8px;">
+                        <span class="label-input">Tanggal Lahir</span>
+                        <input type="date" class="col-tgl_lahir" value="${row.tgl_lahir || ''}">
                     </td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: top;">
-                        <textarea class="col-alamat" placeholder="Alamat lengkap" style="width: 100%; min-height: 70px;">${htmlEscape(row.alamat || '')}</textarea>
+                    <td style="min-width: 260px;">
+                        <span class="label-input">Alamat Lengkap</span>
+                        <textarea class="col-alamat" placeholder="Alamat lengkap...">${htmlEscape(row.alamat || '')}</textarea>
                     </td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: top;">
-                        <select class="col-agama" style="width: 100%;">
-                            <option value="">Pilih</option>
+                    <td style="min-width: 150px;">
+                        <span class="label-input">Agama</span>
+                        <select class="col-agama">
+                            <option value="">-- Pilih --</option>
                             <option value="Islam" ${row.agama === 'Islam' ? 'selected' : ''}>Islam</option>
                             <option value="Kristen" ${row.agama === 'Kristen' ? 'selected' : ''}>Kristen</option>
                             <option value="Katolik" ${row.agama === 'Katolik' ? 'selected' : ''}>Katolik</option>
@@ -227,17 +255,21 @@ $school_name = $school['nama_sekolah'] ;
                             <option value="Konghucu" ${row.agama === 'Konghucu' ? 'selected' : ''}>Konghucu</option>
                         </select>
                     </td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: top;">
+                    <td style="min-width: 200px;">
+                        <span class="label-input">Nama Sekolah Asal</span>
                         <input type="text" class="col-sekolah_asal" value="${htmlEscape(row.sekolah_asal || '')}" placeholder="Nama sekolah asal">
                     </td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: top;">
-                        <input type="text" class="col-no_hp" value="${htmlEscape(row.no_hp || '')}" placeholder="08xx">
+                    <td style="min-width: 160px;">
+                        <span class="label-input">No. HP Siswa</span>
+                        <input type="text" class="col-no_hp" value="${htmlEscape(row.no_hp || '')}" placeholder="08xx-xxxx-xxxx">
                     </td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: top;">
-                        <input type="text" class="col-nama_ortu" value="${htmlEscape(row.nama_ortu || '')}" placeholder="Nama orangtua">
+                    <td style="min-width: 200px;">
+                        <span class="label-input">Nama Orangtua / Wali</span>
+                        <input type="text" class="col-nama_ortu" value="${htmlEscape(row.nama_ortu || '')}" placeholder="Nama orangtua/wali">
                     </td>
-                    <td style="padding: 14px; border: 1px solid #ddd; vertical-align: top;">
-                        <input type="text" class="col-no_hp_ortu" value="${htmlEscape(row.no_hp_ortu || '')}" placeholder="08xx">
+                    <td style="min-width: 160px;">
+                        <span class="label-input">No. HP Orangtua</span>
+                        <input type="text" class="col-no_hp_ortu" value="${htmlEscape(row.no_hp_ortu || '')}" placeholder="08xx-xxxx-xxxx">
                     </td>
                 </tr>
             `;
@@ -257,10 +289,11 @@ $school_name = $school['nama_sekolah'] ;
         let savedCount = 0;
         let errorCount = 0;
 
-        // Disable button during save
         const saveBtn = event.target;
         saveBtn.disabled = true;
         saveBtn.style.opacity = '0.5';
+
+        const promises = [];
 
         rows.forEach(row => {
             const id_siswa = parseInt(row.dataset.id);
@@ -286,7 +319,7 @@ $school_name = $school['nama_sekolah'] ;
             formData.append('nama_ortu', nama_ortu);
             formData.append('no_hp_ortu', no_hp_ortu);
 
-            fetch('../../backend/pages/save_data_pribadi_inline.php', {
+            const p = fetch('../../backend/pages/save_data_pribadi_inline.php', {
                 method: 'POST',
                 body: formData
             })
@@ -298,14 +331,15 @@ $school_name = $school['nama_sekolah'] ;
                     errorCount++;
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
+            .catch(() => {
                 errorCount++;
             });
+
+            promises.push(p);
         });
 
-        // Show result after all requests
-        setTimeout(() => {
+        // Tunggu semua request selesai baru tampilkan status
+        Promise.all(promises).then(() => {
             saveBtn.disabled = false;
             saveBtn.style.opacity = '1';
             if (errorCount === 0) {
@@ -313,7 +347,7 @@ $school_name = $school['nama_sekolah'] ;
             } else {
                 showStatusMessage('error', `⚠ ${savedCount} disimpan, ${errorCount} gagal`);
             }
-        }, 1000);
+        });
     }
 
     function resetForm() {
@@ -363,7 +397,6 @@ $school_name = $school['nama_sekolah'] ;
             .replace(/'/g, '&#039;');
     }
 
-    // Auto-load on page load if kelas parameter exists
     document.addEventListener('DOMContentLoaded', function() {
         const params = new URLSearchParams(window.location.search);
         const kelas = params.get('kelas');
@@ -377,4 +410,3 @@ $school_name = $school['nama_sekolah'] ;
 <?php
 include '../layouts/footer.php';
 ?>
-

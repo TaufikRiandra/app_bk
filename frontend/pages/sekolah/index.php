@@ -42,7 +42,7 @@ $data = mysqli_query($conn,"SELECT * FROM sekolah");
 			<a href="./kelas.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-people-roof"></i>Data Kelas</a>
 			<?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
 				<a href="../guru_bk/index.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-chalkboard-user"></i>Kelola Guru BK</a>
-				<a href="../bk.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-link"></i>Tetapkan BK</a>
+				<a href="../guru_bk/bk.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-link"></i>Tetapkan BK</a>
 				<a href="./tambah.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-plus"></i>Tambah Sekolah</a>
 			<?php endif; ?>
 		</div>
