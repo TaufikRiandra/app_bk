@@ -7,6 +7,24 @@ if(!isset($_SESSION['login'])){
     exit;
 }
 
+// Tambahkan di bagian awal save_mediasi.php, sebelum handler lainnya
+if ($action === 'set_default_guru') {
+    $id_guru_bk = intval($_POST['id_guru_bk'] ?? 0);
+    $tanggal    = $_POST['tanggal'] ?? date('Y-m-d');
+
+    if ($id_guru_bk > 0) {
+        // Simpan ke session agar persists saat refresh
+        if (!isset($_SESSION['mediasi_assigned_guru'])) {
+            $_SESSION['mediasi_assigned_guru'] = [];
+        }
+        $_SESSION['mediasi_assigned_guru'][$tanggal] = $id_guru_bk;
+        echo json_encode(['success' => true, 'message' => 'Guru BK berhasil ditetapkan']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'ID guru BK tidak valid']);
+    }
+    exit;
+}
+
 $action = $_POST['action'] ?? 'save';
 
 if ($action === 'save_batch') {

@@ -84,7 +84,7 @@ if ($result) {
 				</option>
 			<?php endforeach; ?>
 		</select>
-		<button onclick="applyFilterKegiatan()" style="padding:0.75rem 1.5rem;background:var(--brand);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">
+		<button onclick="applyFilterKegiatan()" style="padding:0.75rem 1.5rem;background:var(--brand);color:black;border:none;border-radius:6px;cursor:pointer;font-weight:600">
 			<i class="fas fa-filter"></i> Filter
 		</button>
 	</div>
@@ -153,7 +153,28 @@ if ($result) {
 	</table>
 </div>
 
+		<div style="padding:1.5rem;text-align:center;border-top:1px solid var(--border);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+			<button onclick="exportToExcel()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg, #27ae60 0%, #229954 100%);color:var(--text);border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(39, 174, 96, 0.3)">
+				<i class="fas fa-file-excel"></i> Export Excel
+			</button>
+			<button onclick="exportToPDF()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);color:var(--text);border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(231, 76, 60, 0.3)">
+				<i class="fas fa-file-pdf"></i> Export PDF
+			</button>
+			<button onclick="window.history.pushState({}, '', '?tab=kegiatan_harian');window.location.reload()" style="padding:0.75rem 1.5rem;background:var(--bg-light);color:var(--text-dark);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+				<i class="fas fa-arrow-left"></i> Kembali
+			</button>
+		</div>
+
 <script>
+
+		function exportToExcel() {
+			window.location.href = '../../../backend/pages/export_kegiatan_excel.php';
+		}
+
+		function exportToPDF() {
+			window.open('../../../backend/pages/export_kegiatan_pdf.php');
+		}
+
 function applyFilterKegiatan() {
 	const month = document.getElementById('filterMonth').value;
 	const guruBK = document.getElementById('filterGuruBK').value;

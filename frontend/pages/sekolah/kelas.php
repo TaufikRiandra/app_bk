@@ -13,7 +13,7 @@ include "../../layouts/sidebar.php";
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'guest';
 $kelas_terpilih = isset($_GET['kelas']) ? htmlspecialchars($_GET['kelas']) : null;
 
-// Get school data — pakai kolom yang ada di DB (tahun_ajaran, bukan tahun_pelajaran)
+// Get school data — pakai kolom yang ada di DB (tahun_ajaran)
 $sekolah_result = mysqli_query($conn, "SELECT * FROM sekolah LIMIT 1");
 $data_sekolah = mysqli_fetch_assoc($sekolah_result);
 
@@ -39,20 +39,24 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 }
 ?>
 
-<section class="card">
-	<div style="margin-bottom:2rem">
-		<h1 style="margin-bottom:0.25rem;font-size:1.75rem"><i class="fa-solid fa-people-roof"></i> Data Kelas</h1>
-		<p style="color:var(--text-light);margin:0">
-			<?= htmlspecialchars($data_sekolah['nama_sekolah'] ?? 'Sekolah') ?> - 
+    <div style="background:var(--brand,#4472C4);color:white;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:1.25rem">
+        <h2 style="margin:0 0 4px;font-size:1.1rem;font-weight:700">
+            <i class="fa-solid fa-people-roof"></i> DATA KELAS
+        </h2>
+        <p style="margin:0;font-size:.85rem;opacity:.9">Data Guru BK per kelas</p>
+        <p>
+			<?= htmlspecialchars($data_sekolah['nama_sekolah'] ?? 'Sekolah') ?> -
 			<?= htmlspecialchars($data_sekolah['tahun_ajaran'] ?? 'Tahun Pelajaran') ?>
 		</p>
-	</div>
+    </div>
+
+<section class="card">
 
 	<!-- Layout 3 Kolom -->
 	<div style="display:grid;grid-template-columns:280px 1fr 350px;gap:2rem;align-items:start">
 		
 		<!-- Kolom Kiri: Data Sekolah -->
-		<div style="position:sticky;top:2rem;background:var(--bg-light);padding:1.5rem;border-radius:8px;border:1px solid var(--border)">
+		<div style="position:relative;top:2rem;background:var(--bg-light);padding:1.5rem;border-radius:8px;border:1px solid var(--border)">
 			<h3 style="margin-top:0;margin-bottom:1rem;color:var(--brand);font-size:1rem">Data Sekolah</h3>
 			
 			<table style="width:100%;font-size:0.9rem">
@@ -120,7 +124,7 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 						$terdaftar = in_array($nama_kelas, $kelas_terdaftar);
 
 						if($is_selected){
-							$btn_style = 'background:var(--brand);color:white;border:none';
+							$btn_style = 'background:gray;color:black;border:black';
 						} elseif($terdaftar){
 							// kelas sudah ada di DB — tampilkan lebih menonjol
 							$btn_style = 'background:var(--bg-light);color:var(--text-dark);border:1px solid var(--brand)';
@@ -133,9 +137,6 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 							style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.2s;cursor:pointer;font-size:0.9rem"
 							title="Kelas <?= $nama_kelas ?>">
 							<?= $nama_kelas ?>
-							<?php if($terdaftar && !$is_selected): ?>
-								<span style="display:block;font-size:0.65rem;font-weight:400;color:var(--brand);margin-top:2px">✓ ada</span>
-							<?php endif; ?>
 						</button>
 					<?php endforeach; ?>
 				</div>
@@ -153,7 +154,7 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 		<div style="position:sticky;top:2rem">
 			<?php if($kelas_terpilih && $guru_bk_data): ?>
 				<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-					<div style="background:var(--brand);color:white;padding:1rem;text-align:center">
+					<div style="background:var(--brand);color:black;padding:1rem;text-align:center">
 						<h3 style="margin:0;font-size:1.2rem">Kelas <?= htmlspecialchars($kelas_terpilih) ?></h3>
 					</div>
 					<div style="padding:1.5rem">
@@ -165,7 +166,6 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 										style="width:100px;height:120px;border-radius:8px;object-fit:cover">
 								<?php else: ?>
 									<div style="width:100px;height:120px;background:linear-gradient(135deg,var(--brand) 0%,#5b21b6 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:3rem">
-										👨‍🏫
 									</div>
 								<?php endif; ?>
 							</div>
@@ -189,7 +189,7 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 
 			<?php elseif($kelas_terpilih && !$guru_bk_data): ?>
 				<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-					<div style="background:#f59e0b;color:white;padding:1rem;text-align:center">
+					<div style="background:#f59e0b;color:black;padding:1rem;text-align:center">
 						<h3 style="margin:0;font-size:1.2rem">Kelas <?= htmlspecialchars($kelas_terpilih) ?></h3>
 					</div>
 					<div style="padding:2rem;text-align:center">

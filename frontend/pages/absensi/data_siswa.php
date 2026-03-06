@@ -51,9 +51,6 @@ if($kelas_terpilih) {
 				?>
 					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
 						<?= $k ?>
-						<?php if($is_selected): ?>
-							<i class="fas fa-check" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--brand)"></i>
-						<?php endif; ?>
 					</button>
 				<?php endforeach; ?>
 			</div>
@@ -73,9 +70,6 @@ if($kelas_terpilih) {
 				?>
 					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
 						<?= $k ?>
-						<?php if($is_selected): ?>
-							<i class="fas fa-check" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--brand)"></i>
-						<?php endif; ?>
 					</button>
 				<?php endforeach; ?>
 			</div>
@@ -95,9 +89,6 @@ if($kelas_terpilih) {
 				?>
 					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
 						<?= $k ?>
-						<?php if($is_selected): ?>
-							<i class="fas fa-check" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--brand)"></i>
-						<?php endif; ?>
 					</button>
 				<?php endforeach; ?>
 			</div>

@@ -22,7 +22,7 @@ if(!$conn) {
 <div style="display:grid;grid-template-columns:280px 1fr;gap:2rem;align-items:start">
     
     <div>
-        <div style="position:sticky;top:2rem;background:var(--bg-secondary);padding:1.5rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.5rem">
+        <div style="position:relative;top:0rem;background:var(--bg-secondary);padding:1.5rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.5rem">
             <h3 style="margin-top:0;margin-bottom:1rem;color:var(--brand);font-size:1rem">Pilih Tanggal</h3>
             
             <div style="margin-bottom:1rem">
@@ -74,7 +74,7 @@ if(!$conn) {
             </div>
         <?php else: ?>
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
-                <div style="background:var(--brand);color:white;padding:1.2rem;text-align:center">
+                <div style="background:var(--brand);color:black;padding:1.2rem;text-align:center">
                     <h3 style="margin:0;font-size:1.2rem">Absen Kelas <?= htmlspecialchars($kelas_terpilih) ?></h3>
                     <p style="margin:0.5rem 0 0 0;font-size:0.95rem">
                         <i class="far fa-calendar-alt"></i> <?= date('d F Y', strtotime($tanggal_full)) ?>
@@ -84,12 +84,12 @@ if(!$conn) {
                 <div style="background:var(--bg-light);padding:1rem;border-bottom:1px solid var(--border)">
                     <p style="margin:0;font-size:0.9rem;color:var(--text-dark);text-align:center">
                         <strong>Ket:</strong> 
-                        <span style="margin-left:0.8rem">H:Hadir</span>
-                        <span style="margin-left:0.8rem">I:Izin</span>
-                        <span style="margin-left:0.8rem">S:Sakit</span>
-                        <span style="margin-left:0.8rem">A:Alfa</span>
-                        <span style="margin-left:0.8rem">C:Cabut</span>
-                        <span style="margin-left:0.8rem">T:Telat</span>
+                        <span style="margin-left:0.8rem">H : Hadir</span>
+                        <span style="margin-left:0.8rem">I : Izin</span>
+                        <span style="margin-left:0.8rem">S : Sakit</span>
+                        <span style="margin-left:0.8rem">A : Alfa</span>
+                        <span style="margin-left:0.8rem">C : Cabut</span>
+                        <span style="margin-left:0.8rem">T : Telat</span>
                     </p>
                 </div>
 
