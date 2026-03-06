@@ -45,8 +45,8 @@ function isActive($path) {
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/data_pribadi_siswa.php" class="sidebar-link <?= isActive('/data_pribadi_siswa') ?>">
-                    <i class="fas fa-user-circle"></i> Data Pribadi Siswa
+                <a href="/frontend/pages/siswa/index.php" class="sidebar-link <?= isActive('/data_pribadi_siswa') ?>">
+                    <i class="fas fa-user-circle"></i> Data Siswa
                 </a>
             </li>
             <li>
@@ -60,13 +60,13 @@ function isActive($path) {
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/kegiatan_harian_manual.php" class="sidebar-link <?= isActive('/kegiatan') ?>">
-                    <i class="fas fa-calendar-alt"></i> Kegiatan Harian
+                <a href="/frontend/pages/penilaian.php" class="sidebar-link <?= isActive('/penilaian') ?>">
+                    <i class="fa-solid fa-percent"></i> Penilaian Siswa
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/penilaian.php" class="sidebar-link <?= isActive('/penilaian') ?>">
-                    <i class="fa-solid fa-percent"></i> Penilaian Siswa
+                <a href="/frontend/pages/kegiatan_harian_manual.php" class="sidebar-link <?= isActive('/kegiatan') ?>">
+                    <i class="fas fa-calendar-alt"></i> Kegiatan Harian
                 </a>
             </li>
             <li>

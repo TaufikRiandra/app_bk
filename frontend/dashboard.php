@@ -25,7 +25,7 @@ include "layouts/sidebar.php";
 
       <!-- Action Buttons -->
       <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
-        <a href="./siswa/index.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
+        <a href="pages/siswa/data_pribadi_siswa.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
           <i class="fas fa-users"></i> Data Siswa
         </a>
         <?php
@@ -35,12 +35,17 @@ include "layouts/sidebar.php";
           <a href="./sekolah/index.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
             <i class="fas fa-school"></i> Data Sekolah
           </a>
-        <?php elseif($role === 'guru_bk'): ?>
-          <a href="./sekolah/kelas.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
+        <?php endif; ?>
+
+          <a href="pages/sekolah/kelas.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
             <i class="fas fa-book"></i> Data Kelas
           </a>
-        <?php endif; ?>
-        <a href="./rekap/index.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
+
+          <a href="pages/absensi/index.php?tab=absen_siswa" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
+            <i class="fas fa-book"></i> Absensi Siswa
+          </a>
+
+        <a href="pages/rekap/rekap.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
           <i class="fas fa-file-pdf"></i> Rekap Layanan
         </a>
       </div>

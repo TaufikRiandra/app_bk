@@ -34,8 +34,8 @@ if($kelas_terpilih) {
 <div style="display:grid;grid-template-columns:280px 1fr;gap:2rem;align-items:start">
 	
 	<!-- Kolom Kiri: Pilih Kelas -->
-	<div style="position:sticky;top:2rem;background:var(--bg-secondary);padding:1.5rem;border-radius:8px;border:1px solid var(--border)">
-		<h3 style="margin-top:0;margin-bottom:1rem;color:var(--brand);font-size:1rem">Pilih Kelas</h3>
+	<div style="position:relative;top:0rem;background:var(--bg-secondary);padding:1.5rem;border-radius:8px;border:1px solid var(--border)">
+		<h3 style="margin-top:0;margin-bottom:1rem;color:#4472C4;font-size:1rem">Pilih Kelas</h3>
 		
 		<!-- Kelas 7 -->
 		<div style="margin-bottom:1.5rem">
@@ -46,7 +46,7 @@ if($kelas_terpilih) {
 					foreach($kelas_7 as $k):
 						$is_selected = ($kelas_terpilih === $k) ? true : false;
 						$btn_style = $is_selected 
-							? 'background:var(--brand);color:var(--text);border:2px solid #4F41E8;box-shadow:inset 0 0 0 1px rgba(91, 78, 255, 0.3), 0 0 8px rgba(91, 78, 255, 0.4)' 
+							? 'background:gray;color:var(--text);border:0px solid #4F41E8;'
 							: 'background:var(--bg-light);color:var(--text);border:1px solid var(--border)';
 				?>
 					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
@@ -65,7 +65,7 @@ if($kelas_terpilih) {
 					foreach($kelas_8 as $k):
 						$is_selected = ($kelas_terpilih === $k) ? true : false;
 						$btn_style = $is_selected 
-							? 'background:var(--brand);color:var(--text);border:2px solid #4F41E8;box-shadow:inset 0 0 0 1px rgba(91, 78, 255, 0.3), 0 0 8px rgba(91, 78, 255, 0.4)' 
+							? 'background:gray;color:var(--text);border:0px solid #4F41E8;'
 							: 'background:var(--bg-light);color:var(--text);border:1px solid var(--border)';
 				?>
 					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">
@@ -84,7 +84,7 @@ if($kelas_terpilih) {
 					foreach($kelas_9 as $k):
 						$is_selected = ($kelas_terpilih === $k) ? true : false;
 						$btn_style = $is_selected 
-							? 'background:var(--brand);color:var(--text);border:2px solid #4F41E8;box-shadow:inset 0 0 0 1px rgba(91, 78, 255, 0.3), 0 0 8px rgba(91, 78, 255, 0.4)' 
+							? 'background:gray;color:var(--text);border:0px solid #4F41E8;' 
 							: 'background:var(--bg-light);color:var(--text);border:1px solid var(--border)';
 				?>
 					<button type="button" onclick="loadKelasData('<?= $k ?>')" style="<?= $btn_style ?>;padding:0.75rem;text-align:center;border-radius:6px;font-weight:600;transition:all 0.3s;cursor:pointer;font-size:0.9rem;position:relative" title="Kelas <?= $k ?>">

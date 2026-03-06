@@ -1,183 +1,231 @@
 <?php
-// Get database connection from global
+// Get database connection from global (injected by rekap.php)
 $conn = $GLOBALS['conn'] ?? null;
-if(!$conn) {
-	include "../../../backend/config/database.php";
+if (!$conn) {
+    include "../../../backend/config/database.php";
 }
 
-$current_month = date('Y-m');
-$selected_month = isset($_GET['month']) ? $_GET['month'] : $current_month;
-$guru_bk_list = [];
+// FIX: Fungsi ini mungkin sudah didefinisikan di kegiatan_harian_content.php
+// Gunakan pengecekan agar tidak double-declare
+if (!function_exists('formatDateIndonesianMediasi')) {
+    function formatDateIndonesianMediasi($dateString) {
+        $months_id = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $parts = explode('-', $dateString);
+        if (count($parts) < 2) return $dateString;
+        return $months_id[intval($parts[1])] . ' ' . $parts[0];
+    }
+}
+
+$user_role       = $_SESSION['role'] ?? 'guru_bk';
+$current_month   = date('Y-m');
+$selected_month  = isset($_GET['month']) ? $_GET['month'] : $current_month;
 $selected_guru_bk_id = isset($_GET['guru_bk']) ? intval($_GET['guru_bk']) : null;
 
+// Get school info
 $school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
-$school = mysqli_fetch_assoc($school_result);
-$school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
+$school        = mysqli_fetch_assoc($school_result);
+$school_name   = $school['nama_sekolah'] ?? '';
 
-$result = mysqli_query($conn, "SELECT id_guru_bk, nama, nip FROM guru_bk ORDER BY nama");
-if ($result) {
-	while ($row = mysqli_fetch_assoc($result)) {
-		$guru_bk_list[] = $row;
-	}
+// Get guru BK list
+$guru_bk_list = [];
+$gr = mysqli_query($conn, "SELECT id_guru_bk, nama, nip FROM guru_bk ORDER BY nama");
+if ($gr) {
+    while ($row = mysqli_fetch_assoc($gr)) {
+        $guru_bk_list[] = $row;
+    }
+}
+
+// Get selected guru info
+$selected_guru_bk = null;
+if ($selected_guru_bk_id) {
+    $gq = mysqli_query($conn, "SELECT id_guru_bk, nama, nip FROM guru_bk WHERE id_guru_bk = $selected_guru_bk_id");
+    if ($gq && $row = mysqli_fetch_assoc($gq)) {
+        $selected_guru_bk = $row;
+    }
+}
+
+// Build query
+if ($selected_guru_bk_id) {
+    $query = "SELECT lm.*, gb.nama as guru_bk_nama, gb.nip as guru_bk_nip
+              FROM layanan_mediasi lm
+              LEFT JOIN guru_bk gb ON lm.id_guru_bk = gb.id_guru_bk
+              WHERE lm.id_guru_bk = $selected_guru_bk_id
+              AND DATE_FORMAT(lm.tanggal, '%Y-%m') = '$selected_month'
+              ORDER BY lm.tanggal DESC";
+} else {
+    $query = "SELECT lm.*, gb.nama as guru_bk_nama, gb.nip as guru_bk_nip
+              FROM layanan_mediasi lm
+              LEFT JOIN guru_bk gb ON lm.id_guru_bk = gb.id_guru_bk
+              WHERE DATE_FORMAT(lm.tanggal, '%Y-%m') = '$selected_month'
+              ORDER BY lm.tanggal DESC";
 }
 
 $mediasi_data = [];
-$selected_guru_bk = null;
-
-if ($selected_guru_bk_id) {
-	$guru_query = "SELECT id_guru_bk, nama, nip FROM guru_bk WHERE id_guru_bk = $selected_guru_bk_id";
-	$guru_result = mysqli_query($conn, $guru_query);
-	if ($guru_result && $row = mysqli_fetch_assoc($guru_result)) {
-		$selected_guru_bk = $row;
-	}
-
-	$query = "SELECT * FROM layanan_mediasi 
-		WHERE id_guru_bk = $selected_guru_bk_id 
-		AND DATE_FORMAT(tanggal, '%Y-%m') = '$selected_month'
-		ORDER BY tanggal DESC";
-} else {
-	$query = "SELECT lm.*, gb.nama as guru_bk_nama, gb.nip as guru_bk_nip 
-		FROM layanan_mediasi lm
-		LEFT JOIN guru_bk gb ON lm.id_guru_bk = gb.id_guru_bk
-		WHERE DATE_FORMAT(lm.tanggal, '%Y-%m') = '$selected_month'
-		ORDER BY lm.tanggal DESC";
-}
-
 $result = mysqli_query($conn, $query);
 if ($result) {
-	while ($row = mysqli_fetch_assoc($result)) {
-		$mediasi_data[] = $row;
-	}
-}
-
-function formatDateIndonesian($dateString, $format = 'F Y') {
-	$months_id = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-	list($year, $month) = explode('-', $dateString);
-	$month = intval($month);
-	return $months_id[$month] . ' ' . $year;
+    while ($row = mysqli_fetch_assoc($result)) {
+        $mediasi_data[] = $row;
+    }
 }
 ?>
 
 <div style="margin-bottom:1.5rem">
-	<h2 style="margin-bottom:0.5rem;color:var(--brand)">Laporan Layanan Mediasi</h2>
-	<p style="color:var(--text-light);margin:0">Rekap layanan mediasi bimbingan konseling</p>
+    <h2 style="margin-bottom:0.5rem;color:var(--brand)">Laporan Layanan Mediasi Bulanan</h2>
+    <p style="color:var(--text-light);margin:0">Rekap layanan mediasi bimbingan konseling</p>
 </div>
 
 <!-- Filter Section -->
 <div style="margin-bottom:1.5rem;padding:1.5rem;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)">
-	<label style="font-weight:600;display:block;margin-bottom:0.75rem">Filter:</label>
-	<div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap">
-		<input type="month" id="filterMonth" value="<?= $selected_month ?>" style="padding:0.75rem;border:1px solid var(--border);border-radius:6px;font-size:0.95rem">
-		<select id="filterGuruBK" style="padding:0.75rem;border:1px solid var(--border);border-radius:6px;font-size:0.95rem;min-width:300px">
-			<option value="">-- Semua Guru BK --</option>
-			<?php foreach ($guru_bk_list as $guru): ?>
-				<option value="<?= $guru['id_guru_bk'] ?>" <?= $selected_guru_bk_id === $guru['id_guru_bk'] ? 'selected' : '' ?>>
-					<?= htmlspecialchars($guru['nama']) ?> (<?= $guru['nip'] ?>)
-				</option>
-			<?php endforeach; ?>
-		</select>
-		<button onclick="applyFilterMediasi()" style="padding:0.75rem 1.5rem;background:var(--brand);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">
-			<i class="fas fa-filter"></i> Filter
-		</button>
-	</div>
+    <label style="font-weight:600;display:block;margin-bottom:0.75rem">Filter:</label>
+    <div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap">
+        <input type="month" id="filterMonthMediasi" value="<?= $selected_month ?>"
+               style="padding:0.75rem;border:1px solid var(--border);border-radius:6px;font-size:0.95rem">
+        <select id="filterGuruBKMediasi"
+                style="padding:0.75rem;border:1px solid var(--border);border-radius:6px;font-size:0.95rem;min-width:300px">
+            <option value="">-- Semua Guru BK --</option>
+            <?php foreach ($guru_bk_list as $guru): ?>
+                <option value="<?= $guru['id_guru_bk'] ?>"
+                    <?= $selected_guru_bk_id === $guru['id_guru_bk'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($guru['nama']) ?> (<?= $guru['nip'] ?>)
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <button onclick="applyFilterMediasi()"
+                style="padding:0.75rem 1.5rem;background:var(--brand);color:black;border:none;border-radius:6px;cursor:pointer;font-weight:600">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+    </div>
 </div>
 
-<!-- Guru BK Info Section (if selected) -->
+<!-- Guru BK Info (if selected) -->
 <?php if ($selected_guru_bk): ?>
 <div style="margin-bottom:1.5rem;padding:1rem;background:var(--bg-light);border-left:4px solid var(--brand);border-radius:6px">
-	<p style="margin:0;font-size:0.9rem"><strong>GURU BK:</strong> <?= htmlspecialchars($selected_guru_bk['nama']) ?> (<?= $selected_guru_bk['nip'] ?>)</p>
+    <p style="margin:0;font-size:0.9rem">
+        <strong>GURU BK:</strong>
+        <?= htmlspecialchars($selected_guru_bk['nama']) ?> (<?= $selected_guru_bk['nip'] ?>)
+    </p>
 </div>
 <?php endif; ?>
 
-<!-- Data Table Section -->
+<!-- Data Table -->
 <div style="overflow-x:auto">
-	<p style="color:var(--text-light);margin-bottom:1rem"><strong>Periode:</strong> <?= htmlspecialchars(formatDateIndonesian($selected_month)) ?></p>
-	<table style="width:100%;border-collapse:collapse;font-size:0.9rem">
-		<thead style="background:#CD5C5C;color:black;font-weight:600">
-			<tr>
-				<th style="padding:0.75rem;text-align:center;border:1px solid var(--border);width:40px;color:black">No</th>
-				<?php if (!$selected_guru_bk_id): ?>
-				<th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:100px;color:black">Guru BK</th>
-				<?php endif; ?>
-				<th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:90px;color:black">Tanggal</th>
-				<th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Nama Pihak 1</th>
-				<th style="padding:0.75rem;text-align:center;border:1px solid var(--border);width:60px;color:black">Kelas</th>
-				<th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:100px;color:black">Masalah Pihak 1</th>
-				<th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Nama Pihak 2</th>
-				<th style="padding:0.75rem;text-align:center;border:1px solid var(--border);width:60px;color:black">Kelas</th>
-				<th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:100px;color:black">Masalah Pihak 2</th>
-				<th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:100px;color:black">Hasil Mediasi</th>
-				<th style="padding:0.75rem;text-align:center;border:1px solid var(--border);min-width:120px;color:black">Dokumentasi</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php 
-			if (empty($mediasi_data)): 
-			?>
-				<tr>
-					<td colspan="<?= $selected_guru_bk_id ? '10' : '11' ?>" style="padding:1.5rem;text-align:center;color:var(--text-light)">
-						Belum ada data mediasi untuk periode ini
-					</td>
-				</tr>
-			<?php 
-			else:
-				$no = 1;
-				foreach ($mediasi_data as $mediasi):
-					$tanggal = new DateTime($mediasi['tanggal']);
-					$tgl = $tanggal->format('d/m/Y');
-			?>
-				<tr style="border-bottom:1px solid var(--border)">
-					<td style="padding:0.75rem;text-align:center;border:1px solid var(--border);color:black !important"><?= $no++ ?></td>
-					<?php if (!$selected_guru_bk_id): ?>
-					<td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['guru_bk_nama'] ?? '-') ?></td>
-					<?php endif; ?>
-					<td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= $tgl ?></td>
-					<td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['nama_pihak_1'] ?? '') ?: '-' ?></td>
-					<td style="padding:0.75rem;text-align:center;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['kelas_pihak_1'] ?? '') ?: '-' ?></td>
-					<td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['masalah_pihak_1'] ?? '') ?: '-' ?></td>
-					<td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['nama_pihak_2'] ?? '') ?: '-' ?></td>
-					<td style="padding:0.75rem;text-align:center;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['kelas_pihak_2'] ?? '') ?: '-' ?></td>
-					<td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['masalah_pihak_2'] ?? '') ?: '-' ?></td>
-					<td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['hasil_mediasi'] ?? '') ?: '-' ?></td>
-					<td style="padding:0.75rem;text-align:center;border:1px solid var(--border);color:black !important">
-						<?php if (!empty($mediasi['foto'])): ?>
-							<a href="../../assets/uploads/mediasi/<?= htmlspecialchars($mediasi['foto']) ?>" target="_blank" style="color:var(--brand);text-decoration:none;font-weight:600">
-								🖼️ Lihat
-							</a>
-						<?php else: ?>
-							<span style="color:#999">-</span>
-						<?php endif; ?>
-					</td>
-				</tr>
-			<?php 
-				endforeach;
-			endif;
-			?>
-		</tbody>
-	</table>
+    <p style="color:var(--text-light);margin-bottom:1rem">
+        <strong>Periode:</strong> <?= htmlspecialchars(formatDateIndonesianMediasi($selected_month)) ?>
+    </p>
+
+    <!-- PERBAIKAN: th sekarang pakai background:#FFC000 (kuning) sama seperti kegiatan harian -->
+    <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
+        <thead style="background:#FFC000;color:black;font-weight:600">
+            <tr>
+                <th style="padding:0.75rem;text-align:center;border:1px solid var(--border);width:40px;color:black">No</th>
+                <?php if (!$selected_guru_bk_id): ?>
+                <th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Guru BK</th>
+                <?php endif; ?>
+                <th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:90px;color:black">Tanggal</th>
+                <th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Nama Pihak 1</th>
+                <th style="padding:0.75rem;text-align:center;border:1px solid var(--border);width:60px;color:black">Kelas</th>
+                <th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Masalah Pihak 1</th>
+                <th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Nama Pihak 2</th>
+                <th style="padding:0.75rem;text-align:center;border:1px solid var(--border);width:60px;color:black">Kelas</th>
+                <th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Masalah Pihak 2</th>
+                <th style="padding:0.75rem;text-align:left;border:1px solid var(--border);min-width:120px;color:black">Hasil Mediasi</th>
+                <th style="padding:0.75rem;text-align:center;border:1px solid var(--border);min-width:100px;color:black">Dokumentasi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (empty($mediasi_data)): ?>
+                <tr>
+                    <td colspan="<?= $selected_guru_bk_id ? '10' : '11' ?>"
+                        style="padding:1.5rem;text-align:center;color:var(--text-light)">
+                        Belum ada data mediasi untuk periode ini
+                    </td>
+                </tr>
+            <?php else:
+                $no = 1;
+                foreach ($mediasi_data as $mediasi):
+                    $tgl = (new DateTime($mediasi['tanggal']))->format('d/m/Y');
+            ?>
+                <tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:0.75rem;text-align:center;border:1px solid var(--border);color:black !important"><?= $no++ ?></td>
+                    <?php if (!$selected_guru_bk_id): ?>
+                    <td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['guru_bk_nama'] ?? '-') ?></td>
+                    <?php endif; ?>
+                    <td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= $tgl ?></td>
+                    <td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['nama_pihak_1'] ?? '') ?: '-' ?></td>
+                    <td style="padding:0.75rem;text-align:center;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['kelas_pihak_1'] ?? '') ?: '-' ?></td>
+                    <td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['masalah_pihak_1'] ?? '') ?: '-' ?></td>
+                    <td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['nama_pihak_2'] ?? '') ?: '-' ?></td>
+                    <td style="padding:0.75rem;text-align:center;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['kelas_pihak_2'] ?? '') ?: '-' ?></td>
+                    <td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['masalah_pihak_2'] ?? '') ?: '-' ?></td>
+                    <td style="padding:0.75rem;border:1px solid var(--border);color:black !important"><?= htmlspecialchars($mediasi['hasil_mediasi'] ?? '') ?: '-' ?></td>
+                    <td style="padding:0.75rem;text-align:center;border:1px solid var(--border)">
+                        <?php if (!empty($mediasi['foto'])): ?>
+                            <a href="/frontend/assets/uploads/mediasi/<?= htmlspecialchars($mediasi['foto']) ?>"
+                               target="_blank"
+                               style="color:#4472C4;text-decoration:none;font-weight:600">
+                                <i class="fas fa-image"></i> Lihat
+                            </a>
+                        <?php else: ?>
+                            <span style="color:#999">-</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- Tombol Export -->
+<!-- PERBAIKAN KRITIS: path diubah dari backend/rekap/ ke backend/pages/ (yang benar) -->
+<!-- PERBAIKAN KRITIS: parameter month dan guru_bk sekarang dikirim ke backend -->
+<div style="padding:1.5rem;text-align:center;border-top:1px solid var(--border);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+    <button onclick="exportMediasiExcel()"
+            style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(39,174,96,0.3)">
+        <i class="fas fa-file-excel"></i> Export Excel
+    </button>
+    <button onclick="exportMediasiPdf()"
+            style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#e74c3c 0%,#c0392b 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(231,76,60,0.3)">
+        <i class="fas fa-file-pdf"></i> Export PDF
+    </button>
 </div>
 
 <script>
-function applyFilterMediasi() {
-	const month = document.getElementById('filterMonth').value;
-	const guruBK = document.getElementById('filterGuruBK').value;
-	
-	const currentUrl = new URL(window.location);
-	currentUrl.searchParams.set('tab', 'layanan_mediasi');
-	currentUrl.searchParams.set('month', month);
-	
-	if (guruBK) {
-		currentUrl.searchParams.set('guru_bk', guruBK);
-	} else {
-		currentUrl.searchParams.delete('guru_bk');
-	}
-	
-	window.location.href = currentUrl.toString();
-}
+    function applyFilterMediasi() {
+        const month  = document.getElementById('filterMonthMediasi').value;
+        const guruBK = document.getElementById('filterGuruBKMediasi').value;
 
-document.getElementById('filterMonth')?.addEventListener('keypress', function(e) {
-	if (e.key === 'Enter') {
-		applyFilterMediasi();
-	}
-});
+        // FIX: pertahankan tab=layanan_mediasi agar tidak kembali ke tab lain
+        const url = new URL(window.location);
+        url.searchParams.set('tab', 'layanan_mediasi');
+        url.searchParams.set('month', month);
+        if (guruBK) {
+            url.searchParams.set('guru_bk', guruBK);
+        } else {
+            url.searchParams.delete('guru_bk');
+        }
+        window.location.href = url.toString();
+    }
+
+    // PERBAIKAN KRITIS: export sekarang meneruskan filter month & guru_bk ke backend
+    // Path diubah ke backend/pages/ (bukan backend/rekap/ yang tidak ada)
+    function exportMediasiExcel() {
+        const month  = '<?= urlencode($selected_month) ?>';
+        const guruId = '<?= $selected_guru_bk_id ? intval($selected_guru_bk_id) : '' ?>';
+        let url = '../../../backend/pages/export_mediasi_excel.php?month=' + month;
+        if (guruId) url += '&guru_bk=' + guruId;
+        window.location.href = url;
+    }
+
+    function exportMediasiPdf() {
+        const month  = '<?= urlencode($selected_month) ?>';
+        const guruId = '<?= $selected_guru_bk_id ? intval($selected_guru_bk_id) : '' ?>';
+        let url = '../../../backend/pages/export_mediasi_pdf.php?month=' + month;
+        if (guruId) url += '&guru_bk=' + guruId;
+        window.open(url, '_blank');
+    }
+
+    document.getElementById('filterMonthMediasi')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyFilterMediasi();
+    });
 </script>
