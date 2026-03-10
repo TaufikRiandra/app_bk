@@ -25,7 +25,7 @@ include "layouts/sidebar.php";
 
       <!-- Action Buttons -->
       <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
-        <a href="pages/siswa/data_pribadi_siswa.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
+        <a href="pages/siswa/index.php" style="background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:500; border:1px solid rgba(255,255,255,0.3); display:inline-flex; align-items:center; gap:0.4rem; backdrop-filter:blur(4px);">
           <i class="fas fa-users"></i> Data Siswa
         </a>
         <?php
@@ -80,7 +80,7 @@ include "layouts/sidebar.php";
         <i class="fas fa-school" style="color:#fff; font-size:1.2rem;"></i>
       </div>
       <h4 style="margin:0 0 0.5rem 0; color:#1e1b4b; font-size:1rem; font-weight:700;">Data Sekolah</h4>
-      <p style="margin:0; color:#64748b; font-size:0.875rem; line-height:1.6;">Informasi sekolah dan tahun ajaran yang dapat diatur cepat.</p>
+      <p style="margin:0; color:#64748b; font-size:0.875rem; line-height:1.6;">Informasi sekolah dan tahun ajaran saat ini.</p>
     </div>
 
     <!-- Card 3 -->

@@ -155,7 +155,6 @@ if($kelas_terpilih) {
 		const kelas = formData.get('kelas');
 		const namaSiswa = [];
 
-		// Collect nama siswa yang tidak kosong
 		for(let i = 1; i <= 30; i++) {
 			const nama = formData.get(`nama_siswa[${i}]`);
 			if(nama.trim()) {
@@ -164,43 +163,31 @@ if($kelas_terpilih) {
 		}
 
 		if(namaSiswa.length === 0) {
-			alert('Mohon isi minimal satu nama siswa');
-			return;
+			if(!confirm('Semua nama siswa kosong. Lanjutkan? Ini akan menghapus semua siswa di kelas ' + kelas + '.')) {
+				return;
+			}
 		}
 
-		// Send to backend
 		fetch('../../../backend/pages/save_siswa.php', {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				kelas: kelas,
-				siswa: namaSiswa
-			})
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ kelas: kelas, siswa: namaSiswa })
 		})
 		.then(response => {
-			if(!response.ok) {
-				throw new Error('HTTP Error: ' + response.status);
-			}
-			return response.text(); // Get text first
+			if(!response.ok) throw new Error('HTTP Error: ' + response.status);
+			return response.text();
 		})
 		.then(text => {
-			// Parse JSON dari text
 			const data = JSON.parse(text);
 			if(data.status === 'success') {
 				alert(data.message);
-				setTimeout(() => {
-					window.location.reload();
-				}, 500);
+				setTimeout(() => window.location.reload(), 500);
 			} else {
 				alert('Error: ' + data.message);
 			}
 		})
 		.catch(error => {
-			console.error('Error detail:', error);
-			console.error('Error message:', error.message);
-			alert('⚠️ Error: ' + error.message + '\n\nBuka browser console untuk detail error (F12)');
+			alert('⚠️ Error: ' + error.message);
 		});
 	}
 

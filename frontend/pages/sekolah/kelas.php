@@ -45,8 +45,7 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
         </h2>
         <p style="margin:0;font-size:.85rem;opacity:.9">Data Guru BK per kelas</p>
         <p>
-			<?= htmlspecialchars($data_sekolah['nama_sekolah'] ?? 'Sekolah') ?> -
-			<?= htmlspecialchars($data_sekolah['tahun_ajaran'] ?? 'Tahun Pelajaran') ?>
+			<?= htmlspecialchars($data_sekolah['nama_sekolah'] ?? 'Sekolah') ?>
 		</p>
     </div>
 
@@ -56,7 +55,7 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 	<div style="display:grid;grid-template-columns:280px 1fr 350px;gap:2rem;align-items:start">
 		
 		<!-- Kolom Kiri: Data Sekolah -->
-		<div style="position:relative;top:2rem;background:var(--bg-light);padding:1.5rem;border-radius:8px;border:1px solid var(--border)">
+		<div style="position:relative;top:0rem;background:var(--bg-light);padding:1.5rem;border-radius:8px;border:1px solid var(--border)">
 			<h3 style="margin-top:0;margin-bottom:1rem;color:var(--brand);font-size:1rem">Data Sekolah</h3>
 			
 			<table style="width:100%;font-size:0.9rem">
@@ -154,14 +153,14 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 		<div style="position:sticky;top:2rem">
 			<?php if($kelas_terpilih && $guru_bk_data): ?>
 				<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-					<div style="background:var(--brand);color:black;padding:1rem;text-align:center">
+					<div style="background:var(--brand,#4472C4);color:black;padding:1rem;text-align:center">
 						<h3 style="margin:0;font-size:1.2rem">Kelas <?= htmlspecialchars($kelas_terpilih) ?></h3>
 					</div>
 					<div style="padding:1.5rem">
 						<div style="display:flex;gap:1rem">
 							<div style="flex:0 0 100px">
 								<?php if(!empty($guru_bk_data['foto'])): ?>
-									<img src="/frontend/assets/uploads/guru_bk/<?= htmlspecialchars($guru_bk_data['foto']) ?>"
+									<img src="<?= htmlspecialchars($guru_bk_data['foto']) ?>"
 										alt="Foto Guru"
 										style="width:100px;height:120px;border-radius:8px;object-fit:cover">
 								<?php else: ?>
@@ -193,7 +192,7 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 						<h3 style="margin:0;font-size:1.2rem">Kelas <?= htmlspecialchars($kelas_terpilih) ?></h3>
 					</div>
 					<div style="padding:2rem;text-align:center">
-						<div style="font-size:2.5rem;margin-bottom:1rem">⚠️</div>
+						<div style="font-size:2.5rem;margin-bottom:1rem"><i class="fa-solid fa-triangle-exclamation"></i></div>
 						<p style="color:var(--text-light);margin:0">Guru BK belum ditetapkan untuk kelas ini</p>
 						<?php if($role === 'admin'): ?>
 							<p style="color:var(--text-light);margin:0.5rem 0 0 0;font-size:0.85rem">
@@ -205,7 +204,7 @@ while($row = mysqli_fetch_assoc($kelas_list_result)){
 
 			<?php else: ?>
 				<div style="background:var(--surface);border:2px dashed var(--border);border-radius:12px;padding:2rem;text-align:center">
-					<div style="font-size:2.5rem;margin-bottom:1rem">🏫</div>
+					<div style="font-size:2.5rem;margin-bottom:1rem"><i class="fa-solid fa-user"></i></div>
 					<p style="color:var(--text-light);margin:0">Pilih kelas untuk melihat</p>
 					<p style="color:var(--text-light);margin:0.5rem 0 0 0;font-size:0.9rem">informasi Guru BK</p>
 				</div>

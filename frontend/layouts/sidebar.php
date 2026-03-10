@@ -45,7 +45,7 @@ function isActive($path) {
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/siswa/index.php" class="sidebar-link <?= isActive('/data_pribadi_siswa') ?>">
+                <a href="/frontend/pages/siswa/index.php" class="sidebar-link <?= isActive('/siswa/index') ?>">
                     <i class="fas fa-user-circle"></i> Data Siswa
                 </a>
             </li>
@@ -55,7 +55,7 @@ function isActive($path) {
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/absensi/index.php" class="sidebar-link <?= isActive('/absensi') ?>">
+                <a href="/frontend/pages/absensi/index.php" class="sidebar-link <?= isActive('/absensi/index') ?>">
                     <i class="fas fa-clipboard-list"></i> Absensi
                 </a>
             </li>
@@ -70,7 +70,7 @@ function isActive($path) {
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/layanan/index.php" class="sidebar-link <?= isActive('/mediasi') ?>">
+                <a href="/frontend/pages/layanan/index.php" class="sidebar-link <?= isActive('/layanan/index') ?>">
                     <i class="fas fa-handshake"></i> Layanan
                 </a>
             </li>

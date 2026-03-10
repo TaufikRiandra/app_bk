@@ -82,8 +82,7 @@ $layanan = [
     </h2>
     <p style="margin:0;font-size:.85rem;opacity:.9">Pilih jenis layanan Bimbingan dan Konseling</p>
     <p style="margin:4px 0 0;font-size:.85rem;opacity:.85">
-        <?= htmlspecialchars($data_sekolah['nama_sekolah'] ?? 'Sekolah') ?> —
-        <?= htmlspecialchars($data_sekolah['tahun_ajaran'] ?? '') ?>
+        <?= htmlspecialchars($data_sekolah['nama_sekolah'] ?? 'Sekolah') ?>
     </p>
 </div>
 

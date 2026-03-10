@@ -18,10 +18,15 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Get JSON data
 $input = json_decode(file_get_contents('php://input'), true);
 
-if(!isset($input['kelas']) || !isset($input['siswa'])) {
+if(!isset($input['kelas'])) {
 	http_response_code(400);
 	echo json_encode(['status' => 'error', 'message' => 'Data tidak lengkap']);
 	exit;
+}
+
+// siswa boleh kosong (untuk hapus semua)
+if(!isset($input['siswa'])) {
+	$input['siswa'] = [];
 }
 
 $kelas = mysqli_real_escape_string($conn, $input['kelas']);

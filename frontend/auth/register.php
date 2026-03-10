@@ -55,7 +55,7 @@ unset($_SESSION['flash_error'], $_SESSION['flash_success'], $_SESSION['old_usern
       <label for="password_confirm">Konfirmasi Password</label>
       <input type="password" id="password_confirm" name="password_confirm" required placeholder="Ulangi password">
 
-      <button type="submit" class="btn" style="width:100%;margin-top:1.5rem;padding:0.875rem">
+      <button type="submit" class="btn" style="width:100%;margin-top:1.5rem;padding:0.875rem ;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:0.5rem">
         <i class="fas fa-user-plus"></i> Daftar Akun
       </button>
     </form>
