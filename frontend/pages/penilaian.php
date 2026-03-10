@@ -7,10 +7,22 @@ if(!isset($_SESSION['login'])){
 }
 
 include '../../backend/config/database.php';
+include '../../backend/config/auth_helper.php';
 include '../layouts/header.php';
 include '../layouts/sidebar.php';
 
-$kelas_query = "SELECT DISTINCT kelas FROM siswa WHERE kelas IS NOT NULL AND kelas != '' ORDER BY kelas";
+// Filter kelas sesuai role
+if (isAdmin()) {
+    $kelas_query = "SELECT DISTINCT nama_kelas as kelas FROM kelas 
+                    WHERE nama_kelas IS NOT NULL AND nama_kelas != '' 
+                    ORDER BY nama_kelas";
+} else {
+    $id_gbk = getSessionGuruBkId();
+    $kelas_query = "SELECT DISTINCT nama_kelas as kelas FROM kelas 
+                    WHERE id_guru_bk = $id_gbk 
+                    AND nama_kelas IS NOT NULL AND nama_kelas != '' 
+                    ORDER BY nama_kelas";
+}
 $kelas_result = mysqli_query($conn, $kelas_query);
 $kelas_list = [];
 while ($row = mysqli_fetch_assoc($kelas_result)) {
@@ -19,20 +31,26 @@ while ($row = mysqli_fetch_assoc($kelas_result)) {
 
 $school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
 $school = mysqli_fetch_assoc($school_result);
-$school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
+$school_name = $school['nama_sekolah'] ?? '';
 ?>
 
 <div style="max-width:1600px; margin:0 auto; padding:20px; font-family:'Segoe UI',sans-serif;">
 
   <!-- Page Header -->
+  <div style="background:var(--brand,#4472C4);color:white;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:1.25rem">
+      <h2 style="margin:0 0 4px;font-size:1.1rem;font-weight:700">
+          <i class="fa-solid fa-percent" style="margin-right:8px"></i>PENILAIAN SISWA
+      </h2>
+      <p style="margin:0;font-size:.85rem;opacity:.9">Masukkan nilai tugas siswa</p>
+      <p style="margin:0;font-size:.82rem;opacity:.8"><?= htmlspecialchars($school_name) ?></p>
+  </div>
 
-    <div style="background:var(--brand,#4472C4);color:white;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:1.25rem">
-        <h2 style="margin:0 0 4px;font-size:1.1rem;font-weight:700">
-            <i class="fa-solid fa-percent" style="margin-right:8px"></i>PENILAIAN SISWA
-        </h2>
-        <p style="margin:0;font-size:.85rem;opacity:.9">Masukkan nilai tugas siswa</p>
-        <p><?= htmlspecialchars($school_name) ?></p>
-    </div>
+  <?php if (!isAdmin()): ?>
+  <div style="background:#f0f4ff;border-left:3px solid #4472C4;border-radius:5px;padding:0.6rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:#1a56db">
+      <i class="fas fa-lock" style="margin-right:5px"></i>
+      Anda hanya dapat melihat dan menilai kelas yang ditetapkan untuk Anda.
+  </div>
+  <?php endif; ?>
 
   <!-- Tab Navigation -->
   <div style="display:flex; gap:0; margin-bottom:24px; background:#f1f5f9; border-radius:10px; padding:5px;">
@@ -91,7 +109,6 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
         </div>
       </div>
 
-      <!-- Export Buttons -->
       <div id="exportButtons" style="display:flex; gap:8px; margin-bottom:14px;"></div>
 
       <hr style="margin:14px 0; border:none; border-top:1px solid #e8edf2;">
@@ -123,7 +140,7 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
 
     <!-- Error State -->
     <div id="errorState" style="display:none; background:#fef2f2; padding:14px 16px; border-radius:8px; border-left:4px solid #ef4444;">
-      <p id="errorMessage" style="color:#dc2626; margin:0; font-size:13px;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i></p>
+      <p id="errorMessage" style="color:#dc2626; margin:0; font-size:13px;"></p>
     </div>
 
   </div><!-- END GENERATE TAB -->
@@ -222,44 +239,32 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
 </div>
 
 <style>
-  input[type="text"], input[type="number"], select {
-    font-family: inherit;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  input[type="text"]:focus, input[type="number"]:focus, select:focus {
-    outline: none;
-    border-color: #4472C4 !important;
-    box-shadow: 0 0 0 3px rgba(68,114,196,0.12);
-  }
-  th { font-family: inherit; }
-  input[type="checkbox"].task-checkbox {
-    width: 17px; height: 17px; cursor: pointer; margin: 0;
-    accent-color: #4472C4;
-  }
-  tr:hover td { background-color: #f8fafc; }
+  input[type="text"], input[type="number"], select { font-family:inherit; transition:border-color 0.2s,box-shadow 0.2s; }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus { outline:none; border-color:#4472C4 !important; box-shadow:0 0 0 3px rgba(68,114,196,0.12); }
+  th { font-family:inherit; }
+  input[type="checkbox"].task-checkbox { width:17px; height:17px; cursor:pointer; margin:0; accent-color:#4472C4; }
+  tr:hover td { background-color:#f8fafc; }
 </style>
 
 <script>
-  let siswaData = [];
-  let jumlahTugas = 5;
-  let currentTab = 'generate';
+  const USER_ROLE      = '<?= isAdmin() ? 'admin' : 'guru_bk' ?>';
+  const ALLOWED_KELAS  = <?= json_encode($kelas_list) ?>;
+
+  let siswaData    = [];
+  let jumlahTugas  = 5;
+  let currentTab   = 'generate';
   let deleteTarget = null;
 
   /* ── TAB SWITCH ── */
   function switchTab(tab) {
     currentTab = tab;
-
-    const tabs = ['generate','tersimpan'];
-    tabs.forEach(t => {
-      const tabEl  = document.getElementById('tab-' + t);
-      const tabDiv = document.getElementById(t + '-tab');
+    ['generate','tersimpan'].forEach(t => {
       const isActive = t === tab;
-      tabDiv.style.display    = isActive ? 'block' : 'none';
-      tabEl.style.background  = isActive ? '#4472C4' : 'transparent';
-      tabEl.style.color       = isActive ? 'white'   : '#64748b';
-      tabEl.style.boxShadow   = isActive ? '0 2px 8px rgba(68,114,196,0.3)' : 'none';
+      document.getElementById(t + '-tab').style.display   = isActive ? 'block' : 'none';
+      document.getElementById('tab-' + t).style.background  = isActive ? '#4472C4' : 'transparent';
+      document.getElementById('tab-' + t).style.color       = isActive ? 'white'   : '#64748b';
+      document.getElementById('tab-' + t).style.boxShadow   = isActive ? '0 2px 8px rgba(68,114,196,0.3)' : 'none';
     });
-
     if (tab === 'tersimpan') loadTersimpan();
   }
 
@@ -293,8 +298,7 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
                     </div>
                   </div>
                   <button onclick="openDeleteModal('${kls}')"
-                    style="background:#fef2f2;color:#ef4444;border:1px solid #fecaca;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;flex-shrink:0;display:flex;align-items:center;gap:5px;"
-                    title="Hapus penilaian">
+                    style="background:#fef2f2;color:#ef4444;border:1px solid #fecaca;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;flex-shrink:0;display:flex;align-items:center;gap:5px;" title="Hapus penilaian">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </div>
@@ -331,37 +335,22 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
   function openDeleteModal(kelas) {
     deleteTarget = kelas;
     document.getElementById('deleteKelasLabel').textContent = kelas;
-    const modal = document.getElementById('deleteModal');
-    modal.style.display = 'flex';
+    document.getElementById('deleteModal').style.display = 'flex';
   }
-
   function closeDeleteModal() {
     deleteTarget = null;
     document.getElementById('deleteModal').style.display = 'none';
   }
-
   function confirmDelete() {
     if (!deleteTarget) return;
-    const formData = new FormData();
-    formData.append('kelas', deleteTarget);
-
-    fetch('../../backend/pages/delete_penilaian.php', { method:'POST', body:formData })
+    const fd = new FormData();
+    fd.append('kelas', deleteTarget);
+    fetch('../../backend/pages/delete_penilaian.php', { method:'POST', body:fd })
       .then(r => r.json())
-      .then(data => {
-        closeDeleteModal();
-        if (data.success) {
-          loadTersimpan();
-        } else {
-          alert('Gagal menghapus: ' + (data.message || 'Error'));
-        }
-      })
-      .catch(() => { closeDeleteModal(); alert('Terjadi kesalahan saat menghapus.'); });
+      .then(data => { closeDeleteModal(); if (data.success) loadTersimpan(); else alert('Gagal: ' + (data.message||'Error')); })
+      .catch(() => { closeDeleteModal(); alert('Terjadi kesalahan.'); });
   }
-
-  // Close modal on backdrop click
-  document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) closeDeleteModal();
-  });
+  document.getElementById('deleteModal').addEventListener('click', function(e) { if (e.target === this) closeDeleteModal(); });
 
   /* ── VIEW DETAIL ── */
   function viewPenilaianDetail(kelas) {
@@ -383,18 +372,14 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
     document.getElementById('detailKelasLabel').textContent = '(' + kelas + ')';
     document.getElementById('detailSiswaCount').textContent = siswa.length;
     document.getElementById('detailJumlahTugas').textContent = jTugas;
-
-    const klasEncoded = encodeURIComponent(kelas);
+    const ke = encodeURIComponent(kelas);
     document.getElementById('detailExportButtons').innerHTML = `
-      <a href="../../backend/pages/export_penilaian_excel.php?mode=saved&kelas=${klasEncoded}"
+      <a href="../../backend/pages/export_penilaian_excel.php?mode=saved&kelas=${ke}"
          style="background:#22c55e;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
-        <i class="fas fa-file-excel"></i> Export Excel
-      </a>
-      <a href="../../backend/pages/export_penilaian_pdf.php?mode=saved&kelas=${klasEncoded}"
+        <i class="fas fa-file-excel"></i> Export Excel</a>
+      <a href="../../backend/pages/export_penilaian_pdf.php?mode=saved&kelas=${ke}"
          style="background:#ef4444;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
-        <i class="fas fa-file-pdf"></i> Export PDF
-      </a>`;
-
+        <i class="fas fa-file-pdf"></i> Export PDF</a>`;
     document.getElementById('detailTabelHead').innerHTML = buildHeaderHtml(jTugas);
     document.getElementById('detailTabelBody').innerHTML = buildBodyHtml(siswa, jTugas, true);
   }
@@ -410,6 +395,13 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
     const jumlah = parseInt(document.getElementById('jumlahTugas').value) || 5;
 
     if (!kelas) { showEmpty('Pilih kelas terlebih dahulu'); return; }
+
+    // Validasi frontend: guru BK tidak boleh akses kelas diluar ALLOWED_KELAS
+    if (USER_ROLE !== 'admin' && !ALLOWED_KELAS.includes(kelas)) {
+      showError('Akses ditolak: kelas ini bukan kelas Anda');
+      return;
+    }
+
     if (jumlah < 1 || jumlah > 50) { showError('Jumlah tugas harus antara 1-50'); return; }
 
     jumlahTugas = jumlah;
@@ -439,26 +431,21 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
     document.getElementById('kelasLabel').textContent = '(' + kelas + ')';
     document.getElementById('siswaCount').textContent = siswa.length;
     document.getElementById('infoJumlahTugas').textContent = jTugas;
-
-    const klasEncoded = encodeURIComponent(kelas);
+    const ke = encodeURIComponent(kelas);
     document.getElementById('exportButtons').innerHTML = `
-      <a href="../../backend/pages/export_penilaian_excel.php?kelas=${klasEncoded}&jumlah_tugas=${jTugas}"
+      <a href="../../backend/pages/export_penilaian_excel.php?kelas=${ke}&jumlah_tugas=${jTugas}"
          style="background:#22c55e;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
-        <i class="fas fa-file-excel"></i> Export Excel
-      </a>
-      <a href="../../backend/pages/export_penilaian_pdf.php?kelas=${klasEncoded}&jumlah_tugas=${jTugas}"
+        <i class="fas fa-file-excel"></i> Export Excel</a>
+      <a href="../../backend/pages/export_penilaian_pdf.php?kelas=${ke}&jumlah_tugas=${jTugas}"
          style="background:#ef4444;color:white;text-decoration:none;padding:8px 14px;border-radius:7px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;" target="_blank">
-        <i class="fas fa-file-pdf"></i> Export PDF
-      </a>`;
-
+        <i class="fas fa-file-pdf"></i> Export PDF</a>`;
     document.getElementById('tabelHead').innerHTML = buildHeaderHtml(jTugas);
     document.getElementById('tabelBody').innerHTML = buildBodyHtml(siswa, jTugas, false);
   }
 
   /* ── SHARED TABLE BUILDERS ── */
   function buildHeaderHtml(jTugas) {
-    let h = `
-      <tr>
+    let h = `<tr>
         <th rowspan="2" style="background:#FFC000;color:#1e293b;font-weight:700;padding:12px 14px;border:1px solid #e2e8f0;text-align:center;vertical-align:middle;width:50px;">No</th>
         <th rowspan="2" style="background:#FFC000;color:#1e293b;font-weight:700;padding:12px 14px;border:1px solid #e2e8f0;text-align:left;vertical-align:middle;min-width:150px;">Nama Siswa</th>
         <th colspan="${jTugas}" style="background:#FFC000;color:#1e293b;font-weight:700;padding:12px 14px;border:1px solid #e2e8f0;text-align:center;">Tugas Ke</th>
@@ -488,45 +475,38 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
     }).join('');
   }
 
-  /* ── SAVE FUNCTIONS ── */
+  /* ── SAVE ── */
   function simpanSemualNilai() {
     if (siswaData.length === 0) { showStatusMessage('error','Tidak ada data yang disimpan'); return; }
     savePenilaian(document.getElementById('tabelBody'), jumlahTugas, 'statusMessage', event.target);
   }
-
   function simpanPenilaianTersimpan() {
     const jTugas = parseInt(document.getElementById('detailJumlahTugas').textContent);
     savePenilaian(document.getElementById('detailTabelBody'), jTugas, 'detailStatusMessage', event.target);
   }
-
   function savePenilaian(tbody, jTugas, statusId, btn) {
     const rows = tbody.querySelectorAll('tr');
-    if (rows.length === 0) { showMsg(statusId,'error','Tidak ada data yang disimpan'); return; }
-
+    if (!rows.length) { showMsg(statusId,'error','Tidak ada data'); return; }
     btn.disabled = true; btn.style.opacity = '0.55';
-    let savedCount = 0, errorCount = 0, total = rows.length;
-
+    let saved = 0, error = 0, total = rows.length;
     rows.forEach(row => {
       const id_siswa = parseInt(row.dataset.id);
       const scores = [];
-      for (let i = 1; i <= jTugas; i++) {
-        scores.push(row.querySelector('.task-' + i).checked ? 1 : 0);
-      }
+      for (let i = 1; i <= jTugas; i++) scores.push(row.querySelector('.task-'+i).checked ? 1 : 0);
       const fd = new FormData();
       fd.append('id_siswa', id_siswa);
       fd.append('jumlah_tugas', jTugas);
       fd.append('scores', JSON.stringify(scores));
-
       fetch('../../backend/pages/save_penilaian.php', { method:'POST', body:fd })
         .then(r => r.json())
-        .then(d => { d.success ? savedCount++ : errorCount++; })
-        .catch(() => errorCount++)
+        .then(d => { d.success ? saved++ : error++; })
+        .catch(() => error++)
         .finally(() => {
-          if (savedCount + errorCount === total) {
+          if (saved + error === total) {
             btn.disabled = false; btn.style.opacity = '1';
-            errorCount === 0
-              ? showMsg(statusId,'success',`${savedCount} nilai siswa berhasil disimpan`)
-              : showMsg(statusId,'error',`${savedCount} disimpan, ${errorCount} gagal`);
+            error === 0
+              ? showMsg(statusId,'success',`${saved} nilai siswa berhasil disimpan`)
+              : showMsg(statusId,'error',`${saved} disimpan, ${error} gagal`);
           }
         });
     });
@@ -536,38 +516,29 @@ $school_name = $school['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
   function showMsg(id, type, message) {
     const el = document.getElementById(id);
     el.style.display = 'block';
-    el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" style="margin-right:6px;"></i>${message}`;
-    el.style.background   = type === 'success' ? '#f0fdf4' : '#fef2f2';
-    el.style.color        = type === 'success' ? '#166534' : '#dc2626';
-    el.style.borderLeftColor = type === 'success' ? '#22c55e' : '#ef4444';
-    setTimeout(() => el.style.display = 'none', 3500);
+    el.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}" style="margin-right:6px;"></i>${message}`;
+    el.style.background      = type==='success' ? '#f0fdf4' : '#fef2f2';
+    el.style.color           = type==='success' ? '#166534' : '#dc2626';
+    el.style.borderLeftColor = type==='success' ? '#22c55e' : '#ef4444';
+    setTimeout(() => el.style.display='none', 3500);
   }
-
-  function showStatusMessage(type, msg) { showMsg('statusMessage', type, msg); }
-  function showDetailStatusMessage(type, msg) { showMsg('detailStatusMessage', type, msg); }
-
+  function showStatusMessage(type,msg) { showMsg('statusMessage',type,msg); }
+  function showDetailStatusMessage(type,msg) { showMsg('detailStatusMessage',type,msg); }
   function showEmpty(msg) {
-    document.getElementById('tableContainer').style.display = 'none';
-    document.getElementById('errorState').style.display    = 'none';
-    document.getElementById('emptyState').style.display    = 'block';
-    document.getElementById('emptyMessage').textContent    = msg;
+    document.getElementById('tableContainer').style.display='none';
+    document.getElementById('errorState').style.display='none';
+    document.getElementById('emptyState').style.display='block';
+    document.getElementById('emptyMessage').textContent=msg;
   }
-
   function showError(msg) {
-    document.getElementById('tableContainer').style.display = 'none';
-    document.getElementById('emptyState').style.display    = 'none';
-    document.getElementById('errorState').style.display    = 'block';
-    document.getElementById('errorMessage').innerHTML      = '<i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>' + msg;
+    document.getElementById('tableContainer').style.display='none';
+    document.getElementById('emptyState').style.display='none';
+    document.getElementById('errorState').style.display='block';
+    document.getElementById('errorMessage').innerHTML='<i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>'+msg;
   }
-
-  function resetTable() {
-    if (confirm('Reset tabel? Semua input nilai akan dikosongkan.')) generateTable();
-  }
-
+  function resetTable() { if (confirm('Reset tabel? Semua input nilai akan dikosongkan.')) generateTable(); }
   function htmlEscape(str) {
-    return String(str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
   }
 </script>
 

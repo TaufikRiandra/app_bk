@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php';
+include '../config/auth_helper.php';
 
 if (!isset($_SESSION['login'])) {
     header("Location: ../../frontend/auth/login.php");
@@ -8,6 +9,7 @@ if (!isset($_SESSION['login'])) {
 }
 
 $kelas = isset($_GET['kelas']) ? htmlspecialchars($_GET['kelas']) : '';
+if(!isAdmin()&&!canAccessKelas($conn,$kelas)){die("Akses ditolak: Anda tidak memiliki izin untuk kelas ini.");}
 
 // Get school info
 $school_result = mysqli_query($conn, "SELECT * FROM sekolah LIMIT 1");

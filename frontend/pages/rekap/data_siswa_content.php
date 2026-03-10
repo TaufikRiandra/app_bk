@@ -1,27 +1,24 @@
 <?php
-// Get database connection from global (injected by rekap.php)
 $conn = $GLOBALS['conn'] ?? null;
 if (!$conn) {
     include "../../../backend/config/database.php";
 }
 
-$user_role = $_SESSION['role'] ?? 'guru_bk';
+require_once "../../../backend/config/auth_helper.php";
 
-// Get school info
-$school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
-$school        = mysqli_fetch_assoc($school_result);
-$school_name   = $school['nama_sekolah'] ?? '';
-
-// Get all unique kelas
-$kelas_query  = "SELECT DISTINCT kelas FROM siswa WHERE kelas IS NOT NULL AND kelas != '' ORDER BY kelas";
-$kelas_result = mysqli_query($conn, $kelas_query);
-$kelas_list   = [];
-while ($row = mysqli_fetch_assoc($kelas_result)) {
-    $kelas_list[] = $row['kelas'];
-}
+// Kelas yang boleh diakses
+$kelas_diizinkan = getKelasForCurrentUser($conn);
+$kelas_diizinkan = array_values(array_unique(getKelasForCurrentUser($conn)));
 
 // Kelas terpilih dari GET parameter
 $selected_kelas = isset($_GET['kelas']) ? htmlspecialchars($_GET['kelas']) : null;
+
+// Jika guru_bk memilih kelas yang bukan haknya → reset
+if ($selected_kelas && !isAdmin()) {
+    if (!in_array($selected_kelas, $kelas_diizinkan)) {
+        $selected_kelas = null;
+    }
+}
 
 // Query data siswa hanya jika kelas sudah dipilih
 $siswa_data = [];
@@ -51,7 +48,7 @@ $total_p     = count(array_filter($siswa_data, fn($s) => $s['jk'] === 'P'));
     <select id="kelasSelect"
         style="padding:.55rem .8rem;border:1px solid #ddd;border-radius:5px;font-size:.9rem;min-width:180px">
         <option value="">-- Pilih Kelas --</option>
-        <?php foreach ($kelas_list as $k): ?>
+        <?php foreach ($kelas_diizinkan as $k): ?>
             <option value="<?= htmlspecialchars($k) ?>"
                 <?= ($selected_kelas === $k) ? 'selected' : '' ?>>
                 Kelas <?= htmlspecialchars($k) ?>
@@ -68,9 +65,21 @@ $total_p     = count(array_filter($siswa_data, fn($s) => $s['jk'] === 'P'));
         <i class="fas fa-times" style="margin-right:5px"></i>Reset
     </a>
     <?php endif; ?>
+
+    <?php if (!isAdmin()): ?>
+    <div style="margin-left:auto;padding:0.5rem 0.85rem;background:#e8f0fe;border-left:3px solid #4472C4;border-radius:5px;font-size:0.8rem;color:#1a56db">
+        <i class="fas fa-lock"></i> Kelas yang ditetapkan untuk Anda
+    </div>
+    <?php endif; ?>
 </div>
 
-<?php if ($selected_kelas): ?>
+<?php if (empty($kelas_diizinkan) && !isAdmin()): ?>
+    <div style="padding:2rem;text-align:center;background:#fff3cd;border:1px solid #ffc107;border-radius:8px">
+        <i class="fas fa-exclamation-circle" style="font-size:2rem;color:#856404;display:block;margin-bottom:0.5rem"></i>
+        <p style="margin:0;color:#856404;font-weight:600">Belum ada kelas yang ditetapkan untuk Anda.</p>
+    </div>
+
+<?php elseif ($selected_kelas): ?>
 
     <!-- Info Ringkasan -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
@@ -123,9 +132,7 @@ $total_p     = count(array_filter($siswa_data, fn($s) => $s['jk'] === 'P'));
                 ?>
                     <tr style="border-bottom:1px solid #eee">
                         <td style="padding:.65rem .6rem;border:1px solid #eee;text-align:center"><?= $no++ ?></td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-weight:600">
-                            <?= htmlspecialchars($siswa['nama_siswa'] ?? '-') ?>
-                        </td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-weight:600"><?= htmlspecialchars($siswa['nama_siswa'] ?? '-') ?></td>
                         <td style="padding:.65rem .6rem;border:1px solid #eee;text-align:center">
                             <span style="padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600;
                                 background:<?= ($siswa['jk'] ?? '') === 'L' ? '#cfe2ff' : '#f8d7e3' ?>;
@@ -133,27 +140,13 @@ $total_p     = count(array_filter($siswa_data, fn($s) => $s['jk'] === 'P'));
                                 <?= htmlspecialchars($siswa['jk'] ?? '-') ?>
                             </span>
                         </td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem">
-                            <?= htmlspecialchars($ttl ?: '-') ?>
-                        </td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem">
-                            <?= htmlspecialchars($siswa['alamat'] ?? '-') ?>
-                        </td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee">
-                            <?= htmlspecialchars($siswa['agama'] ?? '-') ?>
-                        </td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem">
-                            <?= htmlspecialchars($siswa['sekolah_asal'] ?? '-') ?>
-                        </td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee">
-                            <?= htmlspecialchars($siswa['no_hp'] ?? '-') ?>
-                        </td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem">
-                            <?= htmlspecialchars($siswa['nama_ortu'] ?? '-') ?>
-                        </td>
-                        <td style="padding:.65rem .6rem;border:1px solid #eee">
-                            <?= htmlspecialchars($siswa['no_hp_ortu'] ?? '-') ?>
-                        </td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem"><?= htmlspecialchars($ttl ?: '-') ?></td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem"><?= htmlspecialchars($siswa['alamat'] ?? '-') ?></td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee"><?= htmlspecialchars($siswa['agama'] ?? '-') ?></td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem"><?= htmlspecialchars($siswa['sekolah_asal'] ?? '-') ?></td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee"><?= htmlspecialchars($siswa['no_hp'] ?? '-') ?></td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee;font-size:.83rem"><?= htmlspecialchars($siswa['nama_ortu'] ?? '-') ?></td>
+                        <td style="padding:.65rem .6rem;border:1px solid #eee"><?= htmlspecialchars($siswa['no_hp_ortu'] ?? '-') ?></td>
                     </tr>
                 <?php endforeach; endif; ?>
             </tbody>
@@ -175,13 +168,10 @@ $total_p     = count(array_filter($siswa_data, fn($s) => $s['jk'] === 'P'));
     <?php endif; ?>
 
 <?php else: ?>
-
-    <!-- Empty state — belum pilih kelas -->
     <div style="padding:3rem 1.5rem;text-align:center;background:#f8f9fa;border:2px dashed #ddd;border-radius:8px">
         <i class="fas fa-chalkboard-teacher" style="font-size:2.5rem;color:#ccc;display:block;margin-bottom:.75rem"></i>
         <p style="color:#999;font-size:.95rem;margin:0">Silakan pilih kelas untuk menampilkan data rekap siswa</p>
     </div>
-
 <?php endif; ?>
 
 <script>
@@ -194,8 +184,7 @@ function pilihKelas() {
     window.location.href = url.toString();
 }
 
-// Hanya Enter yang trigger, bukan change
-document.getElementById('kelasSelect').addEventListener('keydown', function (e) {
+document.getElementById('kelasSelect').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') pilihKelas();
 });
 

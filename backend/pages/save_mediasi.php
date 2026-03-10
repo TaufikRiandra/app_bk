@@ -12,7 +12,15 @@ if (!isset($_SESSION['login'])) {
 $action = $_POST['action'] ?? 'save';
 
 if ($action === 'set_default_guru') {
-    $id_guru_bk = intval($_POST['id_guru_bk'] ?? 0);
+    $role       = $_SESSION['role'] ?? 'guru_bk';
+    $role = $_SESSION['role'] ?? 'guru_bk';
+    if ($role === 'admin') {
+        // Admin: gunakan id_guru_bk dari data item (bisa null untuk data baru admin)
+        $id_guru_bk = intval($item['id_guru_bk'] ?? 0);
+    } else {
+        // Guru BK: selalu paksa dari session
+        $id_guru_bk = intval($_SESSION['id_guru_bk'] ?? $item['id_guru_bk'] ?? 0);
+    }
     $tanggal    = $_POST['tanggal'] ?? date('Y-m-d');
 
     if ($id_guru_bk > 0) {
@@ -64,32 +72,34 @@ if ($action === 'save_batch') {
         $keterangan      = mysqli_real_escape_string($conn, $item['keterangan']      ?? '');
         $foto            = mysqli_real_escape_string($conn, $item['dokumentasi']     ?? $item['foto'] ?? '');
 
-        if (!$tanggal || !$id_guru_bk || !$nama_pihak_1 || !$nama_pihak_2) {
+        if (!$tanggal || !$nama_pihak_1 || !$nama_pihak_2) {
             $failed++;
             continue;
         }
 
+        $id_guru_bk_sql = $id_guru_bk > 0 ? $id_guru_bk : 'NULL';
+
         if (isset($item['id_mediasi']) && $item['id_mediasi'] > 0) {
             $query = "UPDATE layanan_mediasi SET
-                      tanggal          = '$tanggal',
-                      id_guru_bk       = $id_guru_bk,
-                      nama_pihak_1     = '$nama_pihak_1',
-                      kelas_pihak_1    = '$kelas_pihak_1',
-                      masalah_pihak_1  = '$masalah_pihak_1',
-                      nama_pihak_2     = '$nama_pihak_2',
-                      kelas_pihak_2    = '$kelas_pihak_2',
-                      masalah_pihak_2  = '$masalah_pihak_2',
-                      hasil_mediasi    = '$hasil_mediasi',
-                      keterangan       = '$keterangan',
-                      foto             = '$foto'
-                      WHERE id_mediasi = " . intval($item['id_mediasi']);
+                    tanggal          = '$tanggal',
+                    id_guru_bk       = $id_guru_bk_sql,
+                    nama_pihak_1     = '$nama_pihak_1',
+                    kelas_pihak_1    = '$kelas_pihak_1',
+                    masalah_pihak_1  = '$masalah_pihak_1',
+                    nama_pihak_2     = '$nama_pihak_2',
+                    kelas_pihak_2    = '$kelas_pihak_2',
+                    masalah_pihak_2  = '$masalah_pihak_2',
+                    hasil_mediasi    = '$hasil_mediasi',
+                    keterangan       = '$keterangan',
+                    foto             = '$foto'
+                    WHERE id_mediasi = " . intval($item['id_mediasi']);
         } else {
             $query = "INSERT INTO layanan_mediasi
-                      (tanggal, id_guru_bk, nama_pihak_1, kelas_pihak_1, masalah_pihak_1,
-                       nama_pihak_2, kelas_pihak_2, masalah_pihak_2, hasil_mediasi, keterangan, foto)
-                      VALUES
-                      ('$tanggal', $id_guru_bk, '$nama_pihak_1', '$kelas_pihak_1', '$masalah_pihak_1',
-                       '$nama_pihak_2', '$kelas_pihak_2', '$masalah_pihak_2', '$hasil_mediasi', '$keterangan', '$foto')";
+                    (tanggal, id_guru_bk, nama_pihak_1, kelas_pihak_1, masalah_pihak_1,
+                    nama_pihak_2, kelas_pihak_2, masalah_pihak_2, hasil_mediasi, keterangan, foto)
+                    VALUES
+                    ('$tanggal', $id_guru_bk_sql, '$nama_pihak_1', '$kelas_pihak_1', '$masalah_pihak_1',
+                    '$nama_pihak_2', '$kelas_pihak_2', '$masalah_pihak_2', '$hasil_mediasi', '$keterangan', '$foto')";
         }
 
         if (mysqli_query($conn, $query)) {

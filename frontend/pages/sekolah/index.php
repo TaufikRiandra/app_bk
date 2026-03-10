@@ -43,6 +43,8 @@ $data = mysqli_query($conn,"SELECT * FROM sekolah");
 			<?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
 				<a href="../guru_bk/index.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-chalkboard-user"></i>Kelola Guru BK</a>
 				<a href="../guru_bk/bk.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-link"></i>Tetapkan BK</a>
+			<?php endif; ?>
+			<?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'developer'): ?>
 				<a href="./tambah.php" class="btn" style="white-space:nowrap"><i class="fa-solid fa-plus"></i>Tambah Sekolah</a>
 			<?php endif; ?>
 		</div>
@@ -66,9 +68,19 @@ $data = mysqli_query($conn,"SELECT * FROM sekolah");
 						<td><?= htmlspecialchars($r['tahun_ajaran']) ?></td>
 						<td style="text-align:center">
 							<?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-								<a href="./edit.php?id=<?= $r['id_sekolah'] ?>" style="color:var(--brand);text-decoration:none;margin-right:1rem;font-weight:500;transition:all 0.3s" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">✏️ Edit</a>
-									<a href="../../../backend/pages/sekolah/delete.php?id=<?= $r['id_sekolah'] ?>" onclick="return confirm('Yakin hapus data ini?')" class="btn-delete"><i class="fas fa-trash"></i> Hapus</a>
-							<?php else: ?>
+								<a href="./edit.php?id=<?= $r['id_sekolah'] ?>" style="color:var(--brand);text-decoration:none;margin-right:1rem;font-weight:500" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+									<i class="fas fa-edit"></i> Edit
+								</a>
+							<?php endif; ?>
+							<?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'developer'): ?>
+								<a href="./edit.php?id=<?= $r['id_sekolah'] ?>" style="color:var(--brand);text-decoration:none;margin-right:1rem;font-weight:500" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+									<i class="fas fa-edit"></i> Edit
+								</a>
+								<a href="../../../backend/pages/sekolah/delete.php?id=<?= $r['id_sekolah'] ?>" onclick="return confirm('Yakin hapus data ini?')" class="btn-delete">
+									<i class="fas fa-trash"></i> Hapus
+								</a>
+							<?php endif; ?>
+							<?php if($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'developer'): ?>
 								<span style="color:var(--text-light)">No action available</span>
 							<?php endif; ?>
 						</td>

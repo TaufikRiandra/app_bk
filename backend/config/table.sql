@@ -19,22 +19,25 @@
 CREATE DATABASE IF NOT EXISTS `bk_app` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `bk_app`;
 
--- Dumping structure for table bk_app.users
-CREATE TABLE IF NOT EXISTS `users` (
-  `id_user` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('admin','guru_bk') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'guru_bk',
-  `is_active` tinyint(1) NOT NULL DEFAULT '0',
+-- Dumping structure for table bk_app.sekolah
+CREATE TABLE IF NOT EXISTS `sekolah` (
+  `id_sekolah` int NOT NULL AUTO_INCREMENT,
+  `nama_sekolah` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_user`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `kelas` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pemerintah` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `dinas` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jalan` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `kepala_sekolah` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nip_kepala_sekolah` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tahun_ajaran` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id_sekolah`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bk_app.users: ~2 rows (approximately)
-INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `is_active`, `created_at`) VALUES
-	(1, 'admin', '$2a$12$BR/DuOt1AG1I8t4Du3iQnOoylRZVDF1iVpkD2o/.2vAxJknngEL1m', 'admin', 1, '2026-03-04 07:18:52'),
-	(2, 'taufik', '$2y$10$srwmhEb5qKxj/MNeZwfCoOykK2yU47XKCEFpWQJZzaNx0AZlWTWES', 'guru_bk', 1, '2026-03-04 07:56:47');
+-- Dumping data for table bk_app.sekolah: ~1 rows (approximately)
+INSERT INTO `sekolah` (`id_sekolah`, `nama_sekolah`, `alamat`, `created_at`, `kelas`, `pemerintah`, `dinas`, `jalan`, `kepala_sekolah`, `nip_kepala_sekolah`, `tahun_ajaran`) VALUES
+	(1, 'test_s', 'test_almt', '2026-03-05 03:32:10', '7, 8, 9', 'test_p', 'test_d', 'test_jln', 'test_kpsek', '111', '2026/2027');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

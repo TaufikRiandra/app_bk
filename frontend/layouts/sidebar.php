@@ -70,7 +70,7 @@ function isActive($path) {
                 </a>
             </li>
             <li>
-                <a href="/frontend/pages/layanan/index.php" class="sidebar-link <?= isActive('/layanan/index') ?>">
+                <a href="/frontend/pages/layanan/index.php" class="sidebar-link <?= isActive('/layanan/index') ?> <?= isActive('layanan_mediasi_manual.php') ?>">
                     <i class="fas fa-handshake"></i> Layanan
                 </a>
             </li>

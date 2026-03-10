@@ -18,38 +18,18 @@ $user_role = $_SESSION['role'] ?? 'guru_bk';
 $session_id_gbk = intval($_SESSION['id_guru_bk'] ?? 0);
 $today_date = date('Y-m-d');
 
-// Get school info
-$sr = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
-$school_name = ($sr && $s = mysqli_fetch_assoc($sr)) ? $s['nama_sekolah'] : '';
-
-// Get list of guru BK for dropdown (only if admin)
-$guru_bk_list = [];
-if ($user_role === 'admin') {
-    $gr = mysqli_query($conn, "SELECT id_guru_bk, nama, nip FROM guru_bk ORDER BY nama");
-    if ($gr) while ($row = mysqli_fetch_assoc($gr)) $guru_bk_list[] = $row;
-}
-
-// Get current guru BK info (guru_bk role)
+// Get current guru BK info
 $current_guru_bk = [];
-if ($user_role === 'guru_bk' && $session_id_gbk) {
+if ($session_id_gbk) {
     $mg = mysqli_prepare($conn, 'SELECT id_guru_bk, nama, nip FROM guru_bk WHERE id_guru_bk = ?');
     mysqli_stmt_bind_param($mg, 'i', $session_id_gbk);
     mysqli_stmt_execute($mg);
     $current_guru_bk = mysqli_fetch_assoc(mysqli_stmt_get_result($mg)) ?: [];
 }
 
-// Untuk admin: cek jadwal hari ini, siapa yang ditetapkan
-// Kita simpan default_guru_bk_id di session admin agar persists
-$default_guru_bk_id = 0;
-if ($user_role === 'admin') {
-    // Cek apakah ada yang tersimpan di session untuk tanggal hari ini
-    if (isset($_SESSION['mediasi_assigned_guru'][$today_date])) {
-        $default_guru_bk_id = intval($_SESSION['mediasi_assigned_guru'][$today_date]);
-    } elseif (!empty($guru_bk_list)) {
-        // Fallback: guru pertama
-        $default_guru_bk_id = $guru_bk_list[0]['id_guru_bk'];
-    }
-}
+// Get school info
+$sr = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
+$school_name = ($sr && $s = mysqli_fetch_assoc($sr)) ? $s['nama_sekolah'] : '';
 
 $tempo_data = $_SESSION['mediasi_data'] ?? [];
 unset($_SESSION['mediasi_data']);
@@ -66,57 +46,14 @@ unset($_SESSION['mediasi_data']);
         <p style="margin:0;font-size:.82rem;opacity:.8"><?= htmlspecialchars($school_name) ?></p>
     </div>
 
-    <!-- Info/Panduan -->
-    <div style="background:#e8f4fd;border-left:4px solid var(--brand,#4472C4);padding:.85rem 1.25rem;border-radius:0 8px 8px 0;margin-bottom:1.25rem;font-size:.84rem;color:#333">
-        <strong><i class="fas fa-lightbulb" style="margin-right:6px;color:var(--brand,#4472C4)"></i>Panduan:</strong>
-        Pilih Guru BK &rarr; Klik Tetapkan &rarr; Pilih tanggal &rarr; Isi data &rarr; Simpan.
-    </div>
-
-    <!-- Panel Guru BK -->
+    <!-- Info Guru -->
     <div style="background:#f8f9fa;padding:1rem 1.25rem;border-radius:8px;margin-bottom:1.25rem;border-left:4px solid var(--brand,#4472C4)">
-        <?php if ($user_role === 'admin'): ?>
-        <label style="display:block;margin-bottom:.5rem;font-weight:600;font-size:.9rem;color:#333">
-            <i class="fas fa-user-tie" style="margin-right:6px;color:var(--brand,#4472C4)"></i>Tetapkan Guru BK yang Bertugas
-        </label>
-        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-            <select id="selectGuruBK" style="flex:1;min-width:220px;padding:.6rem .8rem;border:1px solid #ddd;border-radius:5px;font-size:.9rem">
-                <option value="">-- Pilih Guru BK --</option>
-                <?php foreach ($guru_bk_list as $g): ?>
-                    <option value="<?= $g['id_guru_bk'] ?>"
-                        <?= ($g['id_guru_bk'] == $default_guru_bk_id) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($g['nama']) ?> (<?= htmlspecialchars($g['nip']) ?>)
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <button onclick="tetapkanGuruBK()"
-                style="padding:.6rem 1.25rem;background:var(--brand,#4472C4);color:white;border:none;border-radius:5px;cursor:pointer;font-size:.88rem;font-weight:600;white-space:nowrap">
-                <i class="fas fa-check" style="margin-right:5px"></i>Tetapkan
-            </button>
+        <div style="font-size:.78rem;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Anda Login Sebagai</div>
+        <div style="font-weight:600;font-size:.95rem;color:#333">
+            <i class="fas fa-user-tie" style="margin-right:6px;color:var(--brand,#4472C4)"></i>
+            <?= htmlspecialchars($current_guru_bk['nama'] ?? ($_SESSION['username'] ?? '-')) ?>
+            <span style="color:#888;font-weight:400;font-size:.85rem">(<?= htmlspecialchars($current_guru_bk['nip'] ?? $user_role) ?>)</span>
         </div>
-        <!-- Info guru yang sedang aktif -->
-        <div id="infoGuruAktif" style="margin-top:.75rem;font-size:.85rem;padding:.5rem .75rem;border-radius:5px;
-            <?= $default_guru_bk_id > 0 ? 'display:block;background:#d4edda;color:#155724;' : 'display:none;' ?>">
-            <?php if ($default_guru_bk_id > 0):
-                $aktif = array_values(array_filter($guru_bk_list, fn($g) => $g['id_guru_bk'] == $default_guru_bk_id));
-            ?>
-                <i class="fas fa-check-circle" style="margin-right:5px"></i>
-                Guru BK yang bertugas saat ini: <strong><?= htmlspecialchars($aktif[0]['nama'] ?? '-') ?></strong>
-            <?php endif; ?>
-        </div>
-        <div id="penetapanMsg" style="display:none;margin-top:.6rem;font-size:.85rem;padding:.5rem .75rem;border-radius:5px"></div>
-
-        <?php else: ?>
-        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
-            <div>
-                <div style="font-size:.78rem;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Anda Login Sebagai</div>
-                <div style="font-weight:600;font-size:.95rem;color:#333">
-                    <i class="fas fa-user-tie" style="margin-right:6px;color:var(--brand,#4472C4)"></i>
-                    <?= htmlspecialchars($current_guru_bk['nama'] ?? '-') ?>
-                    <span style="color:#888;font-weight:400;font-size:.85rem">(<?= htmlspecialchars($current_guru_bk['nip'] ?? '') ?>)</span>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
     </div>
 
     <!-- Pilih Tanggal -->
@@ -209,72 +146,21 @@ textarea.row-input { resize: vertical; min-height: 56px; }
 </style>
 
 <script>
-const USER_ROLE          = '<?= $user_role ?>';
-const TODAY_DATE         = '<?= $today_date ?>';
-const CURRENT_GURU_BK    = <?= json_encode($current_guru_bk) ?>;
-const GURU_BK_LIST       = <?= json_encode($guru_bk_list) ?>;
-const DEFAULT_GURU_BK_ID = <?= intval($default_guru_bk_id) ?>;
+const USER_ROLE       = '<?= $user_role ?>';
+const TODAY_DATE      = '<?= $today_date ?>';
+const CURRENT_GURU_BK = <?= json_encode($current_guru_bk) ?>;
 
 let mediasi_data        = [];
-let current_guru_bk_id  = null;
+let current_guru_bk_id  = CURRENT_GURU_BK.id_guru_bk || null;
 let file_uploads        = {};
 let deleted_mediasi_ids = [];
 
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('inputDate').addEventListener('change', loadMediasi);
 
-    if (USER_ROLE === 'guru_bk') {
-        current_guru_bk_id = CURRENT_GURU_BK.id_guru_bk || null;
-        loadMediasi();
-    } else if (USER_ROLE === 'admin') {
-        if (DEFAULT_GURU_BK_ID > 0) {
-            current_guru_bk_id = DEFAULT_GURU_BK_ID;
-            loadMediasi();
-        }
-    }
+    // Admin tanpa guru_bk tetap bisa load (lihat semua)
+    loadMediasi();
 });
-
-/* ─────────────────────────────────────────────────
-   Tetapkan Guru BK (admin) — disimpan ke server session
-   ───────────────────────────────────────────────── */
-function tetapkanGuruBK() {
-    const sel        = document.getElementById('selectGuruBK');
-    const selectedId = sel ? sel.value : '';
-    const msg        = document.getElementById('penetapanMsg');
-    const infoAktif  = document.getElementById('infoGuruAktif');
-
-    if (!selectedId) {
-        showMsg(msg, 'error', 'Pilih guru BK terlebih dahulu');
-        return;
-    }
-
-    const guru = GURU_BK_LIST.find(g => String(g.id_guru_bk) === String(selectedId));
-    if (!guru) return;
-
-    // Simpan ke server session via fetch agar persists saat refresh
-    const fd = new FormData();
-    fd.append('action', 'set_default_guru');
-    fd.append('id_guru_bk', guru.id_guru_bk);
-    fd.append('tanggal', TODAY_DATE);
-
-    fetch('../../../backend/pages/save_mediasi.php', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                current_guru_bk_id = guru.id_guru_bk;
-
-                // Update info guru aktif
-                infoAktif.style.cssText = 'display:block;background:#d4edda;color:#155724;margin-top:.75rem;font-size:.85rem;padding:.5rem .75rem;border-radius:5px';
-                infoAktif.innerHTML = `<i class="fas fa-check-circle" style="margin-right:5px"></i>Guru BK yang bertugas saat ini: <strong>${guru.nama}</strong>`;
-
-                showMsg(msg, 'success', guru.nama + ' berhasil ditetapkan sebagai guru BK yang bertugas');
-                loadMediasi();
-            } else {
-                showMsg(msg, 'error', data.message || 'Gagal menetapkan guru BK');
-            }
-        })
-        .catch(() => showMsg(msg, 'error', 'Gagal terhubung ke server'));
-}
 
 /* ─────────────────────────────────────────────────
    Load Mediasi
@@ -282,29 +168,32 @@ function tetapkanGuruBK() {
 function loadMediasi() {
     const tanggal = document.getElementById('inputDate').value;
     const tbody   = document.getElementById('tabelMediasiBody');
+    const colspan = USER_ROLE === 'admin' ? '12' : '11';
 
     if (!tanggal) {
-        tbody.innerHTML = '<tr><td colspan="11" style="padding:1.5rem;text-align:center;color:#999">Pilih tanggal terlebih dahulu</td></tr>';
-        return;
-    }
-    if (!current_guru_bk_id) {
-        tbody.innerHTML = '<tr><td colspan="11" style="padding:1.5rem;text-align:center;color:#f39c12"><i class="fas fa-exclamation-triangle" style="margin-right:5px"></i>Tetapkan guru BK terlebih dahulu</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="${colspan}" style="padding:1.5rem;text-align:center;color:#999">Pilih tanggal terlebih dahulu</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = '<tr><td colspan="11" style="padding:1.5rem;text-align:center;color:#999"><i class="fas fa-spinner fa-spin"></i> Memuat...</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="${colspan}" style="padding:1.5rem;text-align:center;color:#999"><i class="fas fa-spinner fa-spin"></i> Memuat...</td></tr>`;
 
     file_uploads        = {};
     deleted_mediasi_ids = [];
 
-    fetch('../../../backend/pages/get_mediasi.php?tanggal=' + encodeURIComponent(tanggal) + '&id_guru_bk=' + current_guru_bk_id)
+    // Admin: load semua (tanpa filter id_guru_bk), guru_bk: filter miliknya
+    let url = '../../../backend/pages/get_mediasi.php?tanggal=' + encodeURIComponent(tanggal)
+            + '&role=' + encodeURIComponent(USER_ROLE);
+    if (USER_ROLE === 'guru_bk' && current_guru_bk_id) {
+        url += '&id_guru_bk=' + current_guru_bk_id;
+    }
+    fetch(url)
         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(data => {
             mediasi_data = Array.isArray(data) ? data : [];
             renderTable();
         })
         .catch(err => {
-            tbody.innerHTML = '<tr><td colspan="11" style="padding:1.5rem;text-align:center;color:#dc3545"><i class="fas fa-exclamation-circle" style="margin-right:5px"></i>Gagal memuat data: ' + err.message + '</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="${colspan}" style="padding:1.5rem;text-align:center;color:#dc3545"><i class="fas fa-exclamation-circle" style="margin-right:5px"></i>Gagal memuat data: ${err.message}</td></tr>`;
         });
 }
 
@@ -312,51 +201,66 @@ function loadMediasi() {
    Render Tabel
    ───────────────────────────────────────────────── */
 function renderTable() {
-    const tbody = document.getElementById('tabelMediasiBody');
+    const tbody   = document.getElementById('tabelMediasiBody');
+    const isAdmin = USER_ROLE === 'admin';
+    const colspan = isAdmin ? '12' : '11';
+
+    // Tambah kolom Guru BK di header jika admin
+    const thead = document.querySelector('thead tr');
+    if (isAdmin && !document.getElementById('thGuruBK')) {
+        const th = document.createElement('th');
+        th.id = 'thGuruBK';
+        th.style.cssText = 'padding:.75rem .6rem;border:1px solid #ddd;text-align:left;min-width:120px';
+        th.textContent = 'Guru BK';
+        thead.insertBefore(th, thead.children[1]); // setelah No
+    }
 
     if (!mediasi_data.length) {
-        tbody.innerHTML = '<tr><td colspan="11" style="padding:1.5rem;text-align:center;color:#999"><i class="fas fa-inbox" style="margin-right:5px"></i>Belum ada data mediasi. Klik Tambah untuk mulai.</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="${colspan}" style="padding:1.5rem;text-align:center;color:#999"><i class="fas fa-inbox" style="margin-right:5px"></i>Belum ada data mediasi. ${!isAdmin || current_guru_bk_id ? 'Klik Tambah untuk mulai.' : ''}</td></tr>`;
         return;
     }
 
     let html = '';
     mediasi_data.forEach((row, index) => {
-        const isNew = !row.id_mediasi;
+        const isNew      = !row.id_mediasi;
+        const isReadOnly = false;
+
         html += `
         <tr id="row_${index}" data-index="${index}" data-id="${row.id_mediasi || ''}"
             style="border-bottom:1px solid #eee;${isNew ? 'background:#f0f8ff;' : ''}">
             <td style="padding:.6rem;border:1px solid #eee;text-align:center">${index + 1}</td>
+            ${isAdmin ? `<td style="padding:.5rem;border:1px solid #eee;font-size:.8rem;color:#555">${esc(row.guru_bk_nama || '-')}</td>` : ''}
             <td style="padding:.5rem;border:1px solid #eee">
                 <input type="date" class="row-input" value="${esc(row.tanggal || '')}"
-                    data-index="${index}" data-field="tanggal" oninput="updateField(this)">
+                    data-index="${index}" data-field="tanggal" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <input type="text" class="row-input" value="${esc(row.nama_pihak_1 || '')}"
-                    placeholder="Nama pihak 1" data-index="${index}" data-field="nama_pihak_1" oninput="updateField(this)">
+                    placeholder="Nama pihak 1" data-index="${index}" data-field="nama_pihak_1" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <input type="text" class="row-input" value="${esc(row.kelas_pihak_1 || '')}"
-                    placeholder="Kelas" data-index="${index}" data-field="kelas_pihak_1" oninput="updateField(this)">
+                    placeholder="Kelas" data-index="${index}" data-field="kelas_pihak_1" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <textarea class="row-input" placeholder="Uraian masalah..."
-                    data-index="${index}" data-field="masalah_pihak_1" oninput="updateField(this)">${esc(row.masalah_pihak_1 || '')}</textarea>
+                    data-index="${index}" data-field="masalah_pihak_1" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>${esc(row.masalah_pihak_1 || '')}</textarea>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <input type="text" class="row-input" value="${esc(row.nama_pihak_2 || '')}"
-                    placeholder="Nama pihak 2" data-index="${index}" data-field="nama_pihak_2" oninput="updateField(this)">
+                    placeholder="Nama pihak 2" data-index="${index}" data-field="nama_pihak_2" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <input type="text" class="row-input" value="${esc(row.kelas_pihak_2 || '')}"
-                    placeholder="Kelas" data-index="${index}" data-field="kelas_pihak_2" oninput="updateField(this)">
+                    placeholder="Kelas" data-index="${index}" data-field="kelas_pihak_2" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <textarea class="row-input" placeholder="Uraian masalah..."
-                    data-index="${index}" data-field="masalah_pihak_2" oninput="updateField(this)">${esc(row.masalah_pihak_2 || '')}</textarea>
+                    data-index="${index}" data-field="masalah_pihak_2" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>${esc(row.masalah_pihak_2 || '')}</textarea>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <input type="text" class="row-input" value="${esc(row.hasil_mediasi || '')}"
-                    placeholder="Hasil..." data-index="${index}" data-field="hasil_mediasi" oninput="updateField(this)">
+                    placeholder="Hasil..." data-index="${index}" data-field="hasil_mediasi" oninput="updateField(this)" ${isReadOnly ? 'readonly' : ''}>
             </td>
             <td style="padding:.5rem;border:1px solid #eee">
                 <div style="display:flex;flex-direction:column;gap:4px">
@@ -366,15 +270,15 @@ function renderTable() {
                             : `<i class="fas fa-image" style="margin-right:3px"></i>Belum ada file`
                         }
                     </span>
-                    <input type="file" accept="image/*" data-index="${index}" onchange="handleFileUpload(event)"
-                        style="font-size:.75rem;padding:3px 0;border:none;background:transparent;cursor:pointer">
+                    ${!isReadOnly ? `<input type="file" accept="image/*" data-index="${index}" onchange="handleFileUpload(event)"
+                        style="font-size:.75rem;padding:3px 0;border:none;background:transparent;cursor:pointer">` : ''}
                 </div>
             </td>
             <td style="padding:.5rem;border:1px solid #eee;text-align:center">
-                <button onclick="hapusMediasi(${index})" title="Hapus"
+                ${!isReadOnly ? `<button onclick="hapusMediasi(${index})" title="Hapus"
                     style="background:#dc3545;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:.8rem">
                     <i class="fas fa-trash"></i>
-                </button>
+                </button>` : '-'}
             </td>
         </tr>`;
     });
@@ -398,13 +302,12 @@ function updateField(input) {
    ───────────────────────────────────────────────── */
 function tambahMediasi() {
     const tanggal = document.getElementById('inputDate').value;
-    if (!tanggal)            { showToast('error', 'Pilih tanggal terlebih dahulu'); return; }
-    if (!current_guru_bk_id) { showToast('error', 'Tetapkan Guru BK terlebih dahulu'); return; }
+    if (!tanggal) { showToast('error', 'Pilih tanggal terlebih dahulu'); return; }
 
     mediasi_data.push({
         id_mediasi:      null,
         tanggal,
-        id_guru_bk:      current_guru_bk_id,
+        id_guru_bk:      current_guru_bk_id || null, // null jika admin murni
         nama_pihak_1:    '',
         kelas_pihak_1:   '',
         masalah_pihak_1: '',
@@ -480,7 +383,6 @@ async function simpanMediasi() {
     btnSimpan.disabled = true;
     btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px"></i>Menyimpan...';
 
-    // Upload file jika ada
     if (Object.keys(file_uploads).length > 0) {
         try {
             for (const [idx, file] of Object.entries(file_uploads)) {

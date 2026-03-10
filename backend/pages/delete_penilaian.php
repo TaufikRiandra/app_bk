@@ -9,7 +9,8 @@ if (!isset($_SESSION['login'])) {
 
 header('Content-Type: application/json');
 
-include '../../backend/config/database.php';
+include '../config/database.php';
+include '../config/auth_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -17,14 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$kelas = isset($_POST['kelas']) ? trim($_POST['kelas']) : '';
+$kelas = trim($_POST['kelas'] ?? '');
 
 if (empty($kelas)) {
     echo json_encode(['success' => false, 'message' => 'Kelas tidak boleh kosong']);
     exit;
 }
 
-// Hapus penilaian berdasarkan kelas via JOIN ke tabel siswa
+// Blokir hapus kelas yang tidak berwenang
+if (!isAdmin() && !canAccessKelas($conn, $kelas)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Akses ditolak']);
+    exit;
+}
+
 $stmt = mysqli_prepare($conn,
     "DELETE p FROM penilaian p
      INNER JOIN siswa s ON s.id_siswa = p.id_siswa
@@ -43,22 +50,16 @@ if (mysqli_stmt_execute($stmt)) {
     mysqli_stmt_close($stmt);
 
     if ($affected === 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => "Tidak ada data penilaian untuk kelas $kelas"
-        ]);
+        echo json_encode(['success' => false, 'message' => "Tidak ada data penilaian untuk kelas $kelas"]);
     } else {
         echo json_encode([
             'success'  => true,
-            'message'  => "Berhasil menghapus penilaian untuk kelas $kelas ($affected siswa)",
+            'message'  => "Berhasil menghapus penilaian kelas $kelas ($affected siswa)",
             'affected' => $affected,
             'kelas'    => $kelas
         ]);
     }
 } else {
     mysqli_stmt_close($stmt);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Gagal menghapus: ' . mysqli_error($conn)
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Gagal menghapus: ' . mysqli_error($conn)]);
 }

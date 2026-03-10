@@ -161,5 +161,28 @@ if ($action === 'foto') {
     exit;
 }
 
+/* ── Update No. Telepon ── */
+if ($action === 'notelp') {
+    if (!$id_guru_bk) {
+        echo json_encode(['success' => false, 'message' => 'Hanya guru BK yang dapat mengubah no. telepon']);
+        exit;
+    }
+
+    $no_telp = trim($_POST['no_telp'] ?? '');
+
+    // Validasi: boleh kosong, tapi kalau diisi harus angka/tanda umum saja
+    if ($no_telp !== '' && strlen(preg_replace('/\D/', '', $no_telp)) < 8) {
+        echo json_encode(['success' => false, 'message' => 'Nomor telepon minimal 8 digit']);
+        exit;
+    }
+
+    $upd = mysqli_prepare($conn, 'UPDATE guru_bk SET no_telp = ? WHERE id_guru_bk = ?');
+    mysqli_stmt_bind_param($upd, 'si', $no_telp, $id_guru_bk);
+    mysqli_stmt_execute($upd);
+
+    echo json_encode(['success' => true, 'message' => 'No. telepon berhasil diperbarui']);
+    exit;
+}
+
 echo json_encode(['success' => false, 'message' => 'Action tidak dikenali']);
 exit;

@@ -44,7 +44,7 @@ include "../../layouts/sidebar.php";
 		<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 			<div>
 				<label for="kelas">Kelas</label>
-				<input type="text" id="kelas" name="kelas" required placeholder="Contoh: X, XI, XII">
+				<input type="text" id="kelas" name="kelas" required placeholder="Contoh: VII, VIII, IX">
 			</div>
 			
 			<div>

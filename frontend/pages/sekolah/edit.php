@@ -19,7 +19,7 @@ $d = mysqli_fetch_assoc($data);
 
 <section class="card" style="max-width:600px;margin:0 auto">
 	<div style="margin-bottom:2rem">
-		<h1 style="margin-bottom:0.25rem;font-size:1.75rem">✏️ Edit Data Sekolah</h1>
+		<h1 style="margin-bottom:0.25rem;font-size:1.75rem"><i class="fas fa-edit"></i> Edit Data Sekolah</h1>
 		<p style="color:var(--text-light);margin:0">Perbarui informasi sekolah di bawah ini</p>
 	</div>
 

@@ -17,28 +17,28 @@ $data_sekolah = mysqli_fetch_assoc($sekolah_result);
 
 $layanan = [
     [
-        'judul'  => 'Konseling Individu',
+        'judul'  => '(Maintenance) Konseling Individu',
         'icon'   => 'fa-solid fa-user',
         'warna'  => '#4472C4',
         'desc'   => 'Layanan konseling secara perorangan antara konselor dan siswa',
         'url'    => '#', // ganti URL sesuai kebutuhan
     ],
     [
-        'judul'  => 'Konseling Kelompok',
+        'judul'  => '(Maintenance) Konseling Kelompok',
         'icon'   => 'fa-solid fa-users',
         'warna'  => '#2e7d32',
         'desc'   => 'Layanan konseling dalam setting kelompok kecil',
         'url'    => '#',
     ],
     [
-        'judul'  => 'Alih Tangan Kasus',
+        'judul'  => '(Maintenance) Alih Tangan Kasus',
         'icon'   => 'fa-solid fa-right-left',
         'warna'  => '#c0392b',
         'desc'   => 'Pelimpahan penanganan kasus kepada pihak yang lebih berwenang',
         'url'    => '#',
     ],
     [
-        'judul'  => 'Layanan Konsultasi',
+        'judul'  => '(Maintenance) Layanan Konsultasi',
         'icon'   => 'fa-solid fa-comments',
         'warna'  => '#7b1fa2',
         'desc'   => 'Konsultasi antara konselor dengan pihak terkait (orang tua, guru)',
@@ -52,21 +52,21 @@ $layanan = [
         'url'    => 'layanan_mediasi_manual.php',
     ],
     [
-        'judul'  => 'Konferensi Kasus',
+        'judul'  => '(Maintenance) Konferensi Kasus',
         'icon'   => 'fa-solid fa-people-arrows',
         'warna'  => '#00838f',
         'desc'   => 'Pertemuan bersama untuk membahas penanganan kasus siswa',
         'url'    => '#',
     ],
     [
-        'judul'  => 'Bimbingan Kelompok',
+        'judul'  => '(Maintenance) Bimbingan Kelompok',
         'icon'   => 'fa-solid fa-chalkboard-user',
         'warna'  => '#558b2f',
         'desc'   => 'Layanan bimbingan yang diberikan kepada sekelompok siswa',
         'url'    => '#',
     ],
     [
-        'judul'  => 'Home Visit',
+        'judul'  => '(Maintenance) Home Visit',
         'icon'   => 'fa-solid fa-house-chimney-user',
         'warna'  => '#6d4c41',
         'desc'   => 'Kunjungan rumah untuk memperoleh data dan tindak lanjut',
@@ -117,5 +117,25 @@ $layanan = [
     </div>
 
 </section>
+
+<div id="toastBelumAda" style="display:none;position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;padding:0.75rem 1.5rem;border-radius:8px;font-size:0.9rem;font-weight:500;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:flex;align-items:center;gap:0.6rem;opacity:0;transition:opacity .3s">
+    <i class="fa-solid fa-clock" style="color:#f59e0b"></i> Fungsi segera ditambahkan
+</div>
+
+<script>
+document.querySelectorAll('a[href="#"]').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+        e.preventDefault();
+        const toast = document.getElementById('toastBelumAda');
+        toast.style.display = 'flex';
+        setTimeout(() => toast.style.opacity = '1', 10);
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.style.display = 'none', 300);
+        }, 2500);
+    });
+});
+</script>
 
 <?php include "../../layouts/footer.php"; ?>

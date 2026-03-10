@@ -1,38 +1,44 @@
 <?php
-// Get database connection from global (injected by rekap.php)
 $conn = $GLOBALS['conn'] ?? null;
 if (!$conn) {
     include "../../../backend/config/database.php";
 }
 
-// FIX: Fungsi ini mungkin sudah didefinisikan di kegiatan_harian_content.php
-// Gunakan pengecekan agar tidak double-declare
+require_once "../../../backend/config/auth_helper.php";
+
 if (!function_exists('formatDateIndonesianMediasi')) {
     function formatDateIndonesianMediasi($dateString) {
-        $months_id = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $months_id = ['','Januari','Februari','Maret','April','Mei','Juni',
+                      'Juli','Agustus','September','Oktober','November','Desember'];
         $parts = explode('-', $dateString);
         if (count($parts) < 2) return $dateString;
         return $months_id[intval($parts[1])] . ' ' . $parts[0];
     }
 }
 
-$user_role       = $_SESSION['role'] ?? 'guru_bk';
-$current_month   = date('Y-m');
-$selected_month  = isset($_GET['month']) ? $_GET['month'] : $current_month;
-$selected_guru_bk_id = isset($_GET['guru_bk']) ? intval($_GET['guru_bk']) : null;
+$current_month  = date('Y-m');
+$selected_month = isset($_GET['month']) ? $_GET['month'] : $current_month;
+
+// === KONTROL AKSES GURU BK ===
+if (isAdmin()) {
+    $selected_guru_bk_id = isset($_GET['guru_bk']) ? intval($_GET['guru_bk']) : null;
+} else {
+    $selected_guru_bk_id = getSessionGuruBkId();
+}
 
 // Get school info
 $school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
 $school        = mysqli_fetch_assoc($school_result);
 $school_name   = $school['nama_sekolah'] ?? '';
 
-// Get guru BK list
+// Get guru BK list (hanya admin)
 $guru_bk_list = [];
-$gr = mysqli_query($conn, "SELECT id_guru_bk, nama, nip FROM guru_bk ORDER BY nama");
-if ($gr) {
-    while ($row = mysqli_fetch_assoc($gr)) {
-        $guru_bk_list[] = $row;
+if (isAdmin()) {
+    $gr = mysqli_query($conn, "SELECT id_guru_bk, nama, nip FROM guru_bk ORDER BY nama");
+    if ($gr) {
+        while ($row = mysqli_fetch_assoc($gr)) {
+            $guru_bk_list[] = $row;
+        }
     }
 }
 
@@ -77,6 +83,7 @@ if ($result) {
 
 <!-- Filter Section -->
 <div style="margin-bottom:1.5rem;padding:1.5rem;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)">
+    <?php if (isAdmin()): ?>
     <label style="font-weight:600;display:block;margin-bottom:0.75rem">Filter:</label>
     <div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap">
         <input type="month" id="filterMonthMediasi" value="<?= $selected_month ?>"
@@ -96,10 +103,28 @@ if ($result) {
             <i class="fas fa-filter"></i> Filter
         </button>
     </div>
+    <?php else: ?>
+    <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+        <div>
+            <label style="font-weight:600;display:block;margin-bottom:0.5rem;font-size:0.9rem">Filter Bulan:</label>
+            <input type="month" id="filterMonthMediasi" value="<?= $selected_month ?>"
+                   style="padding:0.75rem;border:1px solid var(--border);border-radius:6px;font-size:0.95rem">
+        </div>
+        <div style="align-self:flex-end">
+            <button onclick="applyFilterMediasi()"
+                    style="padding:0.75rem 1.5rem;background:var(--brand);color:black;border:none;border-radius:6px;cursor:pointer;font-weight:600">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </div>
+        <div style="align-self:flex-end;padding:0.6rem 1rem;background:#e8f0fe;border-left:4px solid var(--brand);border-radius:6px;font-size:0.85rem;color:#1a56db">
+            <i class="fas fa-lock"></i> Data Anda: <strong><?= htmlspecialchars($selected_guru_bk['nama'] ?? '-') ?></strong>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
-<!-- Guru BK Info (if selected) -->
-<?php if ($selected_guru_bk): ?>
+<!-- Guru BK Info (khusus admin) -->
+<?php if ($selected_guru_bk && isAdmin()): ?>
 <div style="margin-bottom:1.5rem;padding:1rem;background:var(--bg-light);border-left:4px solid var(--brand);border-radius:6px">
     <p style="margin:0;font-size:0.9rem">
         <strong>GURU BK:</strong>
@@ -114,7 +139,6 @@ if ($result) {
         <strong>Periode:</strong> <?= htmlspecialchars(formatDateIndonesianMediasi($selected_month)) ?>
     </p>
 
-    <!-- PERBAIKAN: th sekarang pakai background:#FFC000 (kuning) sama seperti kegiatan harian -->
     <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
         <thead style="background:#FFC000;color:black;font-weight:600">
             <tr>
@@ -162,8 +186,7 @@ if ($result) {
                     <td style="padding:0.75rem;text-align:center;border:1px solid var(--border)">
                         <?php if (!empty($mediasi['foto'])): ?>
                             <a href="/frontend/assets/uploads/mediasi/<?= htmlspecialchars($mediasi['foto']) ?>"
-                               target="_blank"
-                               style="color:#4472C4;text-decoration:none;font-weight:600">
+                               target="_blank" style="color:#4472C4;text-decoration:none;font-weight:600">
                                 <i class="fas fa-image"></i> Lihat
                             </a>
                         <?php else: ?>
@@ -177,8 +200,6 @@ if ($result) {
 </div>
 
 <!-- Tombol Export -->
-<!-- PERBAIKAN KRITIS: path diubah dari backend/rekap/ ke backend/pages/ (yang benar) -->
-<!-- PERBAIKAN KRITIS: parameter month dan guru_bk sekarang dikirim ke backend -->
 <div style="padding:1.5rem;text-align:center;border-top:1px solid var(--border);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
     <button onclick="exportMediasiExcel()"
             style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(39,174,96,0.3)">
@@ -193,9 +214,12 @@ if ($result) {
 <script>
     function applyFilterMediasi() {
         const month  = document.getElementById('filterMonthMediasi').value;
+        <?php if (isAdmin()): ?>
         const guruBK = document.getElementById('filterGuruBKMediasi').value;
+        <?php else: ?>
+        const guruBK = '<?= $selected_guru_bk_id ?>'; // terkunci
+        <?php endif; ?>
 
-        // FIX: pertahankan tab=layanan_mediasi agar tidak kembali ke tab lain
         const url = new URL(window.location);
         url.searchParams.set('tab', 'layanan_mediasi');
         url.searchParams.set('month', month);
@@ -207,8 +231,6 @@ if ($result) {
         window.location.href = url.toString();
     }
 
-    // PERBAIKAN KRITIS: export sekarang meneruskan filter month & guru_bk ke backend
-    // Path diubah ke backend/pages/ (bukan backend/rekap/ yang tidak ada)
     function exportMediasiExcel() {
         const month  = '<?= urlencode($selected_month) ?>';
         const guruId = '<?= $selected_guru_bk_id ? intval($selected_guru_bk_id) : '' ?>';

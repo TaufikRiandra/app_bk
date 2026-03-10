@@ -1,19 +1,33 @@
 <?php
-// Get all unique kelas from siswa table
-$kelas_query = "SELECT DISTINCT kelas FROM siswa WHERE kelas IS NOT NULL AND kelas != '' ORDER BY kelas";
+include '../../../backend/config/auth_helper.php';
+
+// Ambil kelas dari tabel kelas (bukan siswa), agar tampil walau belum ada siswa
+if (isAdmin()) {
+    $kelas_query = "SELECT DISTINCT nama_kelas as kelas FROM kelas 
+                    WHERE nama_kelas IS NOT NULL AND nama_kelas != '' 
+                    ORDER BY nama_kelas";
+} else {
+    $id_gbk = getSessionGuruBkId();
+    $kelas_query = "SELECT DISTINCT nama_kelas as kelas FROM kelas 
+                    WHERE id_guru_bk = $id_gbk 
+                    AND nama_kelas IS NOT NULL AND nama_kelas != '' 
+                    ORDER BY nama_kelas";
+}
 $kelas_result = mysqli_query($conn, $kelas_query);
 $kelas_list = [];
 while ($row = mysqli_fetch_assoc($kelas_result)) {
     $kelas_list[] = $row['kelas'];
 }
 
-// Get school info
-$school_result = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
-$school = mysqli_fetch_assoc($school_result);
-$school_name = $school['nama_sekolah'] ?? '';
-
 // Kelas terpilih dari GET parameter
 $kelas_terpilih_pribadi = isset($_GET['kelas_pribadi']) ? htmlspecialchars($_GET['kelas_pribadi']) : null;
+
+// Blokir akses kelas tidak berwenang via URL manipulation
+if ($kelas_terpilih_pribadi && !isAdmin()) {
+    if (!in_array($kelas_terpilih_pribadi, $kelas_list)) {
+        $kelas_terpilih_pribadi = null;
+    }
+}
 ?>
 
 <!-- Header -->

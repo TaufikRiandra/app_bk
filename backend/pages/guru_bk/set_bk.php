@@ -14,7 +14,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         ));
 
         if(!$guru_exists){
-            header("Location: ../../../frontend/sekolah/bk.php?error=Guru+BK+tidak+ditemukan");
+            header("Location: ../../../frontend/pages/guru_bk/bk.php?error=Guru+BK+tidak+ditemukan");
             exit;
         }
 
@@ -34,14 +34,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         }
 
         if(mysqli_query($conn, $query)){
-            header("Location: ../../../frontend/sekolah/bk.php?success=1");
+            header("Location: ../../../frontend/pages/guru_bk/bk.php?success=1");
         } else {
             $err = urlencode(mysqli_error($conn));
-            header("Location: ../../../frontend/sekolah/bk.php?error=$err");
+            header("Location: ../../../frontend/pages/guru_bk/bk.php?error=$err");
         }
 
     } else {
-        header("Location: ../../../frontend/sekolah/bk.php?error=Data+tidak+lengkap");
+        header("Location: ../../../frontend/pages/guru_bk/bk.php?error=Data+tidak+lengkap");
     }
     exit;
 }

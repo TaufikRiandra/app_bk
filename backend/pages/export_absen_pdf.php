@@ -1,8 +1,12 @@
 <?php
 // PDF Export - Generate printable HTML that can be saved as PDF
 include "../config/database.php";
+if(session_status()===PHP_SESSION_NONE)session_start();
+require_once "../config/auth_helper.php";
+if(!isset($_SESSION["login"]))die("Akses ditolak.");
 
 $kelas = isset($_GET['kelas']) ? htmlspecialchars($_GET['kelas']) : '';
+if(!isAdmin()&&!canAccessKelas($conn,$kelas)){die("Akses ditolak: Anda tidak memiliki izin untuk kelas ini.");}
 $semester = isset($_GET['semester']) ? htmlspecialchars($_GET['semester']) : '';
 
 if(!$kelas || !$semester) {

@@ -1,47 +1,60 @@
 <?php
-// Setup
-$kelas_terpilih    = isset($_GET['kelas'])    ? htmlspecialchars($_GET['kelas'])    : null;
-$semester_terpilih = isset($_GET['semester']) ? htmlspecialchars($_GET['semester']) : null;
-
-// Get database connection (global dari rekap.php)
+// Get database connection (global dari rekap.php / absensi/index.php)
 $conn = $GLOBALS['conn'] ?? null;
 if (!$conn) {
     include "../../../backend/config/database.php";
 }
+
+require_once "../../../backend/config/auth_helper.php";
+
+// Kelas yang boleh diakses
+$kelas_diizinkan = getKelasForCurrentUser($conn);
+$kelas_diizinkan = array_values(array_unique(getKelasForCurrentUser($conn)));
+
+$kelas_terpilih    = isset($_GET['kelas'])    ? htmlspecialchars($_GET['kelas'])    : null;
+$semester_terpilih = isset($_GET['semester']) ? htmlspecialchars($_GET['semester']) : null;
 
 // Ambil data sekolah
 $sekolah_query = mysqli_query($conn, "SELECT nama_sekolah FROM sekolah LIMIT 1");
 $sekolah       = mysqli_fetch_assoc($sekolah_query);
 $nama_sekolah  = $sekolah['nama_sekolah'] ?? 'UPT SMPN 03 SOLOK SELATAN';
 
-// Ambil semua kelas yang tersedia dari database (dinamis)
-$all_kelas = [];
-$kelas_q   = mysqli_query($conn, "SELECT DISTINCT kelas FROM siswa WHERE kelas IS NOT NULL AND kelas != '' ORDER BY kelas");
-while ($row = mysqli_fetch_assoc($kelas_q)) {
-    $all_kelas[] = $row['kelas'];
+// Jika guru_bk memilih kelas yang bukan haknya → reset
+if ($kelas_terpilih && !isAdmin()) {
+    if (!in_array($kelas_terpilih, $kelas_diizinkan)) {
+        $kelas_terpilih = null;
+    }
 }
-// Fallback jika DB kosong
-if (empty($all_kelas)) {
-    $all_kelas = ['7A','7B','7C','7D','7E','7F','8A','8B','8C','8D','8E','8F','9A','9B','9C','9D','9E','9F'];
-}
+?>
 
-// Jika belum pilih kelas
-if (!$kelas_terpilih): ?>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.5rem">
-        <?php foreach ($all_kelas as $kelas): ?>
-            <button
-                onclick="window.history.pushState({},'','?tab=rekap_absen&kelas=<?= $kelas ?>&semester=');window.location.reload()"
-                onmouseover="this.style.boxShadow='0 8px 24px rgba(91,78,255,0.4)';this.style.transform='translateY(-4px)'"
-                onmouseout="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';this.style.transform='translateY(0)'"
-                style="padding:2rem;background:linear-gradient(135deg,var(--brand) 0%,#5b21b6 100%);color:var(--text);border:none;border-radius:12px;cursor:pointer;font-size:1.2rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:0.75rem;transition:all 0.3s ease">
-                <i class="fas fa-chart-pie"></i> Kelas <?= $kelas ?>
-            </button>
-        <?php endforeach; ?>
-    </div>
+<?php if (!$kelas_terpilih): ?>
+    <?php if (empty($kelas_diizinkan)): ?>
+        <div style="padding:3rem;text-align:center;background:#fff3cd;border:1px solid #ffc107;border-radius:8px">
+            <i class="fas fa-exclamation-circle" style="font-size:2rem;color:#856404;display:block;margin-bottom:0.75rem"></i>
+            <p style="margin:0;color:#856404;font-weight:600">Belum ada kelas yang ditetapkan untuk Anda.</p>
+            <p style="margin:0.5rem 0 0 0;color:#856404;font-size:0.9rem">Hubungi admin untuk penetapan kelas.</p>
+        </div>
+    <?php else: ?>
+        <?php if (!isAdmin()): ?>
+        <div style="margin-bottom:1rem;padding:0.6rem 1rem;background:#e8f0fe;border-left:4px solid var(--brand);border-radius:6px;font-size:0.85rem;color:#1a56db">
+            <i class="fas fa-lock"></i> Menampilkan kelas yang ditetapkan untuk Anda
+        </div>
+        <?php endif; ?>
 
-<?php else:
-    // Sudah pilih kelas
-    ?>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.5rem">
+            <?php foreach ($kelas_diizinkan as $kelas): ?>
+                <button
+                    onclick="window.history.pushState({},'','?tab=rekap_absen&kelas=<?= $kelas ?>&semester=');window.location.reload()"
+                    onmouseover="this.style.boxShadow='0 8px 24px rgba(91,78,255,0.4)';this.style.transform='translateY(-4px)'"
+                    onmouseout="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';this.style.transform='translateY(0)'"
+                    style="padding:2rem;background:linear-gradient(135deg,var(--brand) 0%,#5b21b6 100%);color:var(--text);border:none;border-radius:12px;cursor:pointer;font-size:1.2rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:0.75rem;transition:all 0.3s ease">
+                    <i class="fas fa-chart-pie"></i> Kelas <?= $kelas ?>
+                </button>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+<?php else: ?>
     <div style="background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden">
 
         <!-- Header -->
@@ -64,38 +77,30 @@ if (!$kelas_terpilih): ?>
         </div>
 
         <?php if ($semester_terpilih):
-            // PERBAIKAN: tahun dinamis berdasarkan tanggal sekarang
-            $current_year = (int) date('Y');
+            $current_year      = (int) date('Y');
             $current_month_num = (int) date('n');
 
             if ($semester_terpilih === '1') {
                 $months = ['07'=>'Juli','08'=>'Agustus','09'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'];
-                // Semester 1: Juli–Des. Jika bulan sekarang Jan–Jun, kemungkinan tahun lalu
-                $tahun = ($current_month_num >= 7) ? $current_year : $current_year - 1;
+                $tahun  = ($current_month_num >= 7) ? $current_year : $current_year - 1;
             } else {
                 $months = ['01'=>'Januari','02'=>'Februari','03'=>'Maret','04'=>'April','05'=>'Mei','06'=>'Juni'];
-                // Semester 2: Jan–Jun. Jika bulan sekarang Jul–Des, ini tahun berikutnya
-                $tahun = ($current_month_num <= 6) ? $current_year : $current_year + 1;
+                $tahun  = ($current_month_num <= 6) ? $current_year : $current_year + 1;
             }
 
-            // Ambil semua siswa di kelas ini
             $kelas_escaped = mysqli_real_escape_string($conn, $kelas_terpilih);
             $siswa_query   = mysqli_query($conn,
                 "SELECT id_siswa, nis, nama_siswa FROM siswa
                  WHERE kelas = '$kelas_escaped'
-                 ORDER BY CAST(SUBSTRING_INDEX(nis, '-', -1) AS UNSIGNED) ASC"
-            );
+                 ORDER BY CAST(SUBSTRING_INDEX(nis, '-', -1) AS UNSIGNED) ASC");
             $siswa_list = [];
-            while ($row = mysqli_fetch_assoc($siswa_query)) {
-                $siswa_list[] = $row;
-            }
+            while ($row = mysqli_fetch_assoc($siswa_query)) { $siswa_list[] = $row; }
         ?>
 
         <!-- Tabel Rekap -->
         <div style="overflow-x:auto;padding:1.5rem;background:white">
             <table style="width:100%;border-collapse:collapse">
                 <thead>
-                    <!-- Row 1: Bulan -->
                     <tr style="border-bottom:1px solid var(--border)">
                         <th rowspan="2" style="padding:0.5rem;text-align:center;font-weight:600;border-right:1px solid var(--border);min-width:40px;background:#FFC000;color:black">NO</th>
                         <th rowspan="2" style="padding:0.5rem;text-align:left;font-weight:600;border-right:1px solid var(--border);min-width:120px;background:#FFC000;color:black">NAMA</th>
@@ -105,7 +110,6 @@ if (!$kelas_terpilih): ?>
                             </th>
                         <?php endforeach; ?>
                     </tr>
-                    <!-- Row 2: Kode Status -->
                     <tr style="border-bottom:2px solid var(--border)">
                         <?php foreach ($months as $bulan_kode => $bulan_nama):
                             foreach (['H','I','S','A','C','T'] as $code): ?>
@@ -126,10 +130,10 @@ if (!$kelas_terpilih): ?>
                             <?php
                             $bulan_index = 0;
                             foreach ($months as $bulan_kode => $bulan_nama):
-                                $cell_bg = $bulan_index % 2 == 0 ? '#FFF9E6' : '#F9F9F9';
+                                $cell_bg   = $bulan_index % 2 == 0 ? '#FFF9E6' : '#F9F9F9';
                                 $bulan_index++;
 
-                                $tanggal_awal = "$tahun-$bulan_kode-01";
+                                $tanggal_awal  = "$tahun-$bulan_kode-01";
                                 if ($bulan_kode == '12') {
                                     $tanggal_akhir = ($tahun + 1) . "-01-01";
                                 } else {
