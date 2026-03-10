@@ -9,23 +9,55 @@ $old = isset($_SESSION['old_username']) ? $_SESSION['old_username'] : '';
 unset($_SESSION['flash_error'], $_SESSION['flash_success'], $_SESSION['old_username']);
 ?>
 
+<style>
+.message.error {
+    background: #fee2e2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+    padding: 0.875rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.message.success {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+    padding: 0.875rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+</style>
+
 <div style="display:flex;justify-content:center;align-items:center;min-height:calc(100vh - 80px);padding:1rem">
-  <section class="card" style="max-width:400px;width:100%">
+  <section class="card" style="max-width:400px;width:100%"> 
     <div style="text-align:center;margin-bottom:2rem">
-      <div style="font-size:2.5rem;margin-bottom:1rem">🔐</div>
+      <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+        <i class="fa-solid fa-user-lock" style="color:white;font-size:1.4rem"></i>
+      </div>
       <h1 style="margin-bottom:0.25rem;font-size:1.75rem">Masuk ke Sistem</h1>
       <p class="lead" style="text-align:center;font-size:0.95rem">Selamat datang kembali di Sistem Bimbingan Konseling</p>
     </div>
 
     <?php if ($error): ?>
       <div class="message error">
-        ⚠️ <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+        <i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
       </div>
     <?php endif; ?>
 
     <?php if ($success): ?>
       <div class="message success">
-        ✅ <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
+        <i class="fas fa-check-circle"></i> <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
       </div>
     <?php endif; ?>
 
@@ -36,8 +68,8 @@ unset($_SESSION['flash_error'], $_SESSION['flash_success'], $_SESSION['old_usern
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required placeholder="Masukkan password">
       
-      <button type="submit" class="btn" style="width:100%;margin-top:1.5rem;padding:0.875rem">
-        🔓 Masuk Sekarang
+      <button type="submit" class="btn" style="width:100%;margin-top:1.5rem;padding:0.875rem ;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:0.5rem">
+        <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
       </button>
     </form>
 

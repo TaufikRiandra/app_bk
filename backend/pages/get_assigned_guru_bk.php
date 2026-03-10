@@ -1,49 +1,51 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 ob_clean();
-
 session_start();
-include '../config/database.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['login']) || !$_SESSION['login']) {
+if (!isset($_SESSION['login'])) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
+    exit;
 }
 
-$tanggal = $_GET['tanggal'] ?? '';
+include __DIR__ . '/../config/database.php';
 
-// Validasi tanggal
+$tanggal = $_GET['tanggal'] ?? '';
 if (!$tanggal || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Tanggal tidak valid']);
-    exit();
+    exit;
 }
 
-// Query untuk cek guru BK mana yang sudah punya kegiatan untuk tanggal tertentu
-$tanggal_escaped = mysqli_real_escape_string($conn, $tanggal);
-$query = "SELECT DISTINCT kh.id_guru_bk, gb.nama, gb.nip 
-          FROM kegiatan_harian kh
-          JOIN guru_bk gb ON kh.id_guru_bk = gb.id_guru_bk
-          WHERE kh.tanggal = '$tanggal_escaped'
-          LIMIT 1";
+$t = mysqli_real_escape_string($conn, $tanggal);
 
-$result = mysqli_query($conn, $query);
+// Ambil dari tabel jadwal (persisten, ditetapkan admin)
+$q = mysqli_query($conn,
+    "SELECT j.id_guru_bk, j.tanggal,
+            gb.nama, gb.nip
+     FROM guru_bk_jadwal j
+     LEFT JOIN guru_bk gb ON gb.id_guru_bk = j.id_guru_bk
+     WHERE j.tanggal = '$t'
+     LIMIT 1"
+);
 
-if (!$result) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . mysqli_error($conn)]);
-    exit();
-}
-
-$assigned_guru_bk = null;
-if ($row = mysqli_fetch_assoc($result)) {
-    $assigned_guru_bk = $row;
+$assigned = null;
+if ($q && $row = mysqli_fetch_assoc($q)) {
+    // id_guru_bk NULL berarti admin set "tidak ada"
+    if ($row['id_guru_bk'] !== null) {
+        $assigned = [
+            'id_guru_bk' => $row['id_guru_bk'],
+            'nama'        => $row['nama'],
+            'nip'         => $row['nip'],
+        ];
+    } else {
+        // Jadwal ada tapi sengaja dikosongkan
+        $assigned = 'none';
+    }
 }
 
 echo json_encode([
-    'success' => true,
-    'assigned_guru_bk' => $assigned_guru_bk
+    'success'          => true,
+    'assigned_guru_bk' => $assigned, // null = belum ditetapkan, 'none' = sengaja tidak ada, array = guru terpilih
 ]);
-?>

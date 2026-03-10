@@ -22,126 +22,54 @@ USE `bk_app`;
 -- Dumping structure for table bk_app.absen_siswa
 CREATE TABLE IF NOT EXISTS `absen_siswa` (
   `id_absen` int NOT NULL AUTO_INCREMENT,
-  `id_siswa` int DEFAULT NULL,
-  `tanggal` date DEFAULT NULL,
-  `keterangan` enum('Hadir','Izin','Sakit','Alfa','Cabut','Terlambat') DEFAULT NULL,
+  `id_siswa` int NOT NULL,
+  `tanggal` date NOT NULL,
+  `keterangan` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_absen`),
-  KEY `id_siswa` (`id_siswa`),
-  CONSTRAINT `absen_siswa_ibfk_1` FOREIGN KEY (`id_siswa`) REFERENCES `siswa` (`id_siswa`)
-) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `uq_absen` (`id_siswa`,`tanggal`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bk_app.absen_siswa: ~56 rows (approximately)
-INSERT INTO `absen_siswa` (`id_absen`, `id_siswa`, `tanggal`, `keterangan`) VALUES
-	(55, 30, '2026-01-01', 'Hadir'),
-	(56, 31, '2026-01-01', 'Hadir'),
-	(57, 32, '2026-01-01', 'Hadir'),
-	(58, 33, '2026-01-01', 'Hadir'),
-	(59, 34, '2026-01-01', 'Hadir'),
-	(60, 35, '2026-01-01', 'Hadir'),
-	(61, 36, '2026-01-01', 'Hadir'),
-	(62, 37, '2026-01-01', 'Hadir'),
-	(63, 38, '2026-01-01', 'Hadir'),
-	(64, 39, '2026-01-01', 'Hadir'),
-	(65, 40, '2026-01-01', 'Hadir'),
-	(66, 41, '2026-01-01', 'Hadir'),
-	(67, 42, '2026-01-01', 'Hadir'),
-	(68, 43, '2026-01-01', 'Hadir'),
-	(69, 44, '2026-01-01', 'Hadir'),
-	(70, 45, '2026-01-01', 'Hadir'),
-	(71, 46, '2026-01-01', 'Hadir'),
-	(72, 47, '2026-01-01', 'Hadir'),
-	(73, 48, '2026-01-01', 'Hadir'),
-	(74, 49, '2026-01-01', 'Hadir'),
-	(75, 50, '2026-01-01', 'Hadir'),
-	(76, 51, '2026-01-01', 'Hadir'),
-	(77, 52, '2026-01-01', 'Hadir'),
-	(78, 53, '2026-01-01', 'Hadir'),
-	(79, 54, '2026-01-01', 'Hadir'),
-	(80, 55, '2026-01-01', 'Hadir'),
-	(81, 56, '2026-01-01', 'Hadir'),
-	(82, 57, '2026-01-01', 'Hadir'),
-	(85, 30, '2026-01-02', 'Hadir'),
-	(86, 31, '2026-01-02', 'Hadir'),
-	(87, 32, '2026-01-02', 'Hadir'),
-	(88, 33, '2026-01-02', 'Hadir'),
-	(89, 34, '2026-01-02', 'Hadir'),
-	(90, 35, '2026-01-02', 'Hadir'),
-	(91, 36, '2026-01-02', 'Hadir'),
-	(92, 37, '2026-01-02', 'Hadir'),
-	(93, 38, '2026-01-02', 'Hadir'),
-	(94, 39, '2026-01-02', 'Hadir'),
-	(95, 40, '2026-01-02', 'Hadir'),
-	(96, 41, '2026-01-02', 'Hadir'),
-	(97, 42, '2026-01-02', 'Hadir'),
-	(98, 43, '2026-01-02', 'Hadir'),
-	(99, 44, '2026-01-02', 'Hadir'),
-	(100, 45, '2026-01-02', 'Hadir'),
-	(101, 46, '2026-01-02', 'Hadir'),
-	(102, 47, '2026-01-02', 'Hadir'),
-	(103, 48, '2026-01-02', 'Hadir'),
-	(104, 49, '2026-01-02', 'Hadir'),
-	(105, 50, '2026-01-02', 'Hadir'),
-	(106, 51, '2026-01-02', 'Hadir'),
-	(107, 52, '2026-01-02', 'Hadir'),
-	(108, 53, '2026-01-02', 'Hadir'),
-	(109, 54, '2026-01-02', 'Hadir'),
-	(110, 55, '2026-01-02', 'Hadir'),
-	(111, 56, '2026-01-02', 'Hadir'),
-	(112, 57, '2026-01-02', 'Hadir');
+-- Dumping data for table bk_app.absen_siswa: ~12 rows (approximately)
 
 -- Dumping structure for table bk_app.guru_bk
 CREATE TABLE IF NOT EXISTS `guru_bk` (
   `id_guru_bk` int NOT NULL AUTO_INCREMENT,
-  `user_id` int DEFAULT NULL,
-  `nip` varchar(25) NOT NULL,
-  `nama` varchar(100) NOT NULL,
-  `no_telp` varchar(15) NOT NULL,
-  `foto` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `id_user` int NOT NULL,
+  `nip` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nama` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `no_telp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_guru_bk`),
+  UNIQUE KEY `id_user` (`id_user`),
   UNIQUE KEY `nip` (`nip`),
-  KEY `fk_guru_bk_user` (`user_id`),
-  CONSTRAINT `fk_guru_bk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id_user`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_guru_bk_user` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table bk_app.guru_bk: ~1 rows (approximately)
-INSERT INTO `guru_bk` (`id_guru_bk`, `user_id`, `nip`, `nama`, `no_telp`, `foto`, `created_at`) VALUES
-	(1, NULL, '111', 'test_bk', '08111', '/frontend/assets/uploads/guru_bk/guru_bk_1771912729_3f8edca4.png', '2026-02-24 05:58:49');
+INSERT INTO `guru_bk` (`id_guru_bk`, `id_user`, `nip`, `nama`, `no_telp`, `foto`, `created_at`, `updated_at`) VALUES
+	(1, 2, '111', 'taufik', '08111', '/frontend/assets/uploads/guru_bk/guru_bk_1772681146_cafe801d.png', '2026-03-04 07:56:47', '2026-03-05 03:25:46'),
+	(2, 3, '222', 'topik', '08222', '/frontend/assets/uploads/guru_bk/guru_bk_1772683311_4102d270.jpg', '2026-03-05 04:01:51', '2026-03-05 04:01:51');
 
--- Dumping structure for table bk_app.guru_bk_kelas
-CREATE TABLE IF NOT EXISTS `guru_bk_kelas` (
-  `id_bk` int NOT NULL AUTO_INCREMENT,
-  `id_sekolah` int NOT NULL,
-  `id_guru_bk` int NOT NULL,
-  `kelas` varchar(10) NOT NULL,
-  PRIMARY KEY (`id_bk`),
-  UNIQUE KEY `unique_sekolah_kelas` (`id_sekolah`,`kelas`),
-  KEY `guru_bk_kelas_ibfk_2` (`id_guru_bk`),
-  CONSTRAINT `guru_bk_kelas_ibfk_1` FOREIGN KEY (`id_sekolah`) REFERENCES `sekolah` (`id_sekolah`) ON DELETE CASCADE,
-  CONSTRAINT `guru_bk_kelas_ibfk_2` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- Dumping structure for table bk_app.guru_bk_jadwal
+CREATE TABLE IF NOT EXISTS `guru_bk_jadwal` (
+  `id_jadwal` int NOT NULL AUTO_INCREMENT,
+  `tanggal` date NOT NULL,
+  `id_guru_bk` int DEFAULT NULL COMMENT 'NULL = tidak ada guru yang bertugas',
+  `ditetapkan_oleh` int DEFAULT NULL COMMENT 'id_user admin yang menetapkan',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_jadwal`),
+  UNIQUE KEY `uq_jadwal_tanggal` (`tanggal`),
+  KEY `fk_jadwal_guru` (`id_guru_bk`),
+  CONSTRAINT `fk_jadwal_guru` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bk_app.guru_bk_kelas: ~0 rows (approximately)
-INSERT INTO `guru_bk_kelas` (`id_bk`, `id_sekolah`, `id_guru_bk`, `kelas`) VALUES
-	(1, 2, 1, '7A');
-
--- Dumping structure for table bk_app.jenis_layanan
-CREATE TABLE IF NOT EXISTS `jenis_layanan` (
-  `id_layanan` int NOT NULL AUTO_INCREMENT,
-  `nama_layanan` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id_layanan`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Dumping data for table bk_app.jenis_layanan: ~8 rows (approximately)
-INSERT INTO `jenis_layanan` (`id_layanan`, `nama_layanan`) VALUES
-	(1, 'Konseling Individu'),
-	(2, 'Konseling Kelompok'),
-	(3, 'Alih Tangan Kasus'),
-	(4, 'Layanan Konsultasi'),
-	(5, 'Layanan Mediasi'),
-	(6, 'Konferensi Kasus'),
-	(7, 'Layanan Home Visit'),
-	(8, 'Layanan Manual');
+-- Dumping data for table bk_app.guru_bk_jadwal: ~0 rows (approximately)
+INSERT INTO `guru_bk_jadwal` (`id_jadwal`, `tanggal`, `id_guru_bk`, `ditetapkan_oleh`, `created_at`, `updated_at`) VALUES
+	(1, '2026-03-06', NULL, 1, '2026-03-06 04:03:17', '2026-03-06 04:03:17');
 
 -- Dumping structure for table bk_app.kegiatan_harian
 CREATE TABLE IF NOT EXISTS `kegiatan_harian` (
@@ -161,19 +89,39 @@ CREATE TABLE IF NOT EXISTS `kegiatan_harian` (
   PRIMARY KEY (`id_kegiatan`),
   KEY `fk_kegiatan_guru_bk` (`id_guru_bk`),
   CONSTRAINT `fk_kegiatan_guru_bk` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table bk_app.kegiatan_harian: ~3 rows (approximately)
 INSERT INTO `kegiatan_harian` (`id_kegiatan`, `id_guru_bk`, `tanggal`, `waktu_mulai`, `waktu_selesai`, `uraian_kegiatan`, `jenis_layanan`, `sasaran_layanan`, `bidang_kode_layanan`, `hasil`, `keterangan`, `created_at`, `updated_at`) VALUES
-	(1, 1, '2026-02-27', '09:00:00', '10:00:00', 'test', NULL, NULL, NULL, 'test', 'test', '2026-02-27 08:42:50', '2026-02-27 08:42:50'),
-	(2, 1, '2026-02-27', '10:00:00', '11:00:00', 'test', NULL, NULL, NULL, 'test', 'test', '2026-02-27 08:42:50', '2026-02-27 08:42:50'),
-	(4, 1, '2026-03-02', '11:11:00', '11:11:00', 'test', 'test', 'test', 'test', '', '', '2026-03-02 03:40:02', '2026-03-02 03:41:53');
+	(1, 1, '2026-02-27', '09:00:00', '10:00:00', 'test', NULL, NULL, NULL, 'test', 'test', '2026-02-27 01:42:50', '2026-02-27 01:42:50'),
+	(2, 1, '2026-02-27', '10:00:00', '11:00:00', 'test', NULL, NULL, NULL, 'test', 'test', '2026-02-27 01:42:50', '2026-02-27 01:42:50'),
+	(4, 1, '2026-03-02', '11:11:00', '11:11:00', 'test', 'test', 'test', 'test', '', '', '2026-03-01 20:40:02', '2026-03-01 20:41:53'),
+	(5, 1, '2026-03-05', '11:11:00', '11:11:00', 't', 't', 't', 't', '', '', '2026-03-05 03:03:16', '2026-03-05 03:03:16'),
+	(6, 2, '2026-03-06', '13:01:00', '15:02:00', 'belajar', '', '', '', '', '', '2026-03-06 04:57:45', '2026-03-06 04:57:45');
+
+-- Dumping structure for table bk_app.kelas
+CREATE TABLE IF NOT EXISTS `kelas` (
+  `id_kelas` int NOT NULL AUTO_INCREMENT,
+  `nama_kelas` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_guru_bk` int DEFAULT NULL,
+  `id_sekolah` int DEFAULT NULL,
+  PRIMARY KEY (`id_kelas`),
+  KEY `fk_kelas_guru` (`id_guru_bk`),
+  KEY `fk_kelas_sekolah` (`id_sekolah`),
+  CONSTRAINT `fk_kelas_guru` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE SET NULL,
+  CONSTRAINT `fk_kelas_sekolah` FOREIGN KEY (`id_sekolah`) REFERENCES `sekolah` (`id_sekolah`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table bk_app.kelas: ~0 rows (approximately)
+INSERT INTO `kelas` (`id_kelas`, `nama_kelas`, `id_guru_bk`, `id_sekolah`) VALUES
+	(1, '7A', 1, 1),
+	(2, '7B', 2, 1);
 
 -- Dumping structure for table bk_app.layanan_mediasi
 CREATE TABLE IF NOT EXISTS `layanan_mediasi` (
   `id_mediasi` int NOT NULL AUTO_INCREMENT,
-  `tanggal` date NOT NULL,
   `id_guru_bk` int NOT NULL,
+  `tanggal` date NOT NULL,
   `nama_pihak_1` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `kelas_pihak_1` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `masalah_pihak_1` text COLLATE utf8mb4_unicode_ci,
@@ -183,15 +131,16 @@ CREATE TABLE IF NOT EXISTS `layanan_mediasi` (
   `hasil_mediasi` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `keterangan` text COLLATE utf8mb4_unicode_ci,
   `foto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `diubah_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_mediasi`),
-  KEY `id_guru_bk` (`id_guru_bk`),
-  KEY `tanggal` (`tanggal`),
-  CONSTRAINT `layanan_mediasi_ibfk_1` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `fk_mediasi_guru` (`id_guru_bk`),
+  CONSTRAINT `fk_mediasi_guru` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table bk_app.layanan_mediasi: ~0 rows (approximately)
+INSERT INTO `layanan_mediasi` (`id_mediasi`, `id_guru_bk`, `tanggal`, `nama_pihak_1`, `kelas_pihak_1`, `masalah_pihak_1`, `nama_pihak_2`, `kelas_pihak_2`, `masalah_pihak_2`, `hasil_mediasi`, `keterangan`, `foto`, `created_at`, `updated_at`) VALUES
+	(1, 1, '2026-03-06', 'test', 'test', 'test', 'test', 'test', 'test', 'test', '', '69aa519b0dc2a_1772769691.jpg', '2026-03-06 04:01:31', '2026-03-06 04:01:31');
 
 -- Dumping structure for table bk_app.penilaian
 CREATE TABLE IF NOT EXISTS `penilaian` (
@@ -199,146 +148,78 @@ CREATE TABLE IF NOT EXISTS `penilaian` (
   `id_siswa` int NOT NULL,
   `scores` json DEFAULT NULL,
   `jumlah_tugas` int DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_penilaian`),
-  UNIQUE KEY `unique_siswa` (`id_siswa`),
-  CONSTRAINT `penilaian_ibfk_1` FOREIGN KEY (`id_siswa`) REFERENCES `siswa` (`id_siswa`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `uq_penilaian_siswa` (`id_siswa`),
+  CONSTRAINT `fk_penilaian_siswa` FOREIGN KEY (`id_siswa`) REFERENCES `siswa` (`id_siswa`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bk_app.penilaian: ~28 rows (approximately)
-INSERT INTO `penilaian` (`id_penilaian`, `id_siswa`, `scores`, `jumlah_tugas`, `updated_at`) VALUES
-	(1, 31, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(2, 35, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(3, 30, '[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(4, 32, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(5, 34, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(6, 33, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(7, 36, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(8, 37, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(9, 38, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(10, 39, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(11, 40, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(12, 41, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(13, 42, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(14, 43, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(15, 44, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(16, 45, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(17, 46, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(18, 47, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(19, 48, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(20, 49, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(21, 50, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(22, 51, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(23, 52, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(24, 53, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(25, 54, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(26, 55, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(27, 56, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01'),
-	(28, 57, '[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]', 15, '2026-03-02 08:05:01');
-
--- Dumping structure for table bk_app.rekap_layanan
-CREATE TABLE IF NOT EXISTS `rekap_layanan` (
-  `id_rekap` int NOT NULL AUTO_INCREMENT,
-  `id_siswa` int DEFAULT NULL,
-  `id_layanan` int DEFAULT NULL,
-  `tanggal` date DEFAULT NULL,
-  `permasalahan` text,
-  `tindak_lanjut` text,
-  `hasil` text,
-  PRIMARY KEY (`id_rekap`),
-  KEY `id_siswa` (`id_siswa`),
-  KEY `id_layanan` (`id_layanan`),
-  CONSTRAINT `rekap_layanan_ibfk_1` FOREIGN KEY (`id_siswa`) REFERENCES `siswa` (`id_siswa`),
-  CONSTRAINT `rekap_layanan_ibfk_2` FOREIGN KEY (`id_layanan`) REFERENCES `jenis_layanan` (`id_layanan`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Dumping data for table bk_app.rekap_layanan: ~0 rows (approximately)
+-- Dumping data for table bk_app.penilaian: ~4 rows (approximately)
 
 -- Dumping structure for table bk_app.sekolah
 CREATE TABLE IF NOT EXISTS `sekolah` (
   `id_sekolah` int NOT NULL AUTO_INCREMENT,
-  `pemerintah` varchar(100) DEFAULT NULL,
-  `dinas` varchar(100) DEFAULT NULL,
-  `nama_sekolah` varchar(100) DEFAULT NULL,
-  `alamat` text,
-  `jalan` varchar(150) DEFAULT NULL,
-  `kelas` varchar(50) DEFAULT NULL,
-  `tahun_pelajaran` varchar(20) DEFAULT NULL,
-  `kepala_sekolah` varchar(100) DEFAULT NULL,
-  `nip_kepala_sekolah` varchar(25) DEFAULT NULL,
-  `guru_bk` varchar(100) DEFAULT NULL,
-  `nip_guru_bk` varchar(25) DEFAULT NULL,
-  `tahun_ajaran` varchar(20) DEFAULT NULL,
+  `nama_sekolah` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `kelas` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pemerintah` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `dinas` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jalan` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `kepala_sekolah` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nip_kepala_sekolah` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tahun_ajaran` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id_sekolah`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bk_app.sekolah: ~0 rows (approximately)
-INSERT INTO `sekolah` (`id_sekolah`, `pemerintah`, `dinas`, `nama_sekolah`, `alamat`, `jalan`, `kelas`, `tahun_pelajaran`, `kepala_sekolah`, `nip_kepala_sekolah`, `guru_bk`, `nip_guru_bk`, `tahun_ajaran`) VALUES
-	(2, 'test_p', 'test_d', 'test_s', 'test_a', 'test_jln', '7, 8, 9', '2026/02/28', 'test_kpsek', '111', NULL, NULL, '');
+-- Dumping data for table bk_app.sekolah: ~1 rows (approximately)
+INSERT INTO `sekolah` (`id_sekolah`, `nama_sekolah`, `alamat`, `created_at`, `kelas`, `pemerintah`, `dinas`, `jalan`, `kepala_sekolah`, `nip_kepala_sekolah`, `tahun_ajaran`) VALUES
+	(1, 'test_s', 'test_almt', '2026-03-05 03:32:10', '7, 8, 9', 'test_p', 'test_d', 'test_jln', 'test_kpsek', '111', '2026/2027');
 
 -- Dumping structure for table bk_app.siswa
 CREATE TABLE IF NOT EXISTS `siswa` (
   `id_siswa` int NOT NULL AUTO_INCREMENT,
-  `nis` varchar(20) DEFAULT NULL,
-  `nama_siswa` varchar(100) DEFAULT NULL,
-  `jk` enum('L','P') DEFAULT NULL,
-  `tempat_lahir` varchar(100) DEFAULT NULL,
+  `nama_siswa` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nisn` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alamat` text COLLATE utf8mb4_unicode_ci,
+  `no_telp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_guru_bk` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `nis` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `kelas` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jk` enum('L','P') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jurusan` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_hp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tempat_lahir` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tgl_lahir` date DEFAULT NULL,
-  `agama` varchar(50) DEFAULT NULL,
-  `sekolah_asal` varchar(100) DEFAULT NULL,
-  `kelas` varchar(20) DEFAULT NULL,
-  `jurusan` varchar(50) DEFAULT NULL,
-  `no_hp` varchar(15) DEFAULT NULL,
-  `alamat` text,
-  `nama_ortu` varchar(100) DEFAULT NULL,
-  `no_hp_ortu` varchar(15) DEFAULT NULL,
-  PRIMARY KEY (`id_siswa`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `agama` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sekolah_asal` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nama_ortu` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_hp_ortu` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id_siswa`),
+  KEY `fk_siswa_guru` (`id_guru_bk`),
+  CONSTRAINT `fk_siswa_guru` FOREIGN KEY (`id_guru_bk`) REFERENCES `guru_bk` (`id_guru_bk`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bk_app.siswa: ~28 rows (approximately)
-INSERT INTO `siswa` (`id_siswa`, `nis`, `nama_siswa`, `jk`, `tempat_lahir`, `tgl_lahir`, `agama`, `sekolah_asal`, `kelas`, `jurusan`, `no_hp`, `alamat`, `nama_ortu`, `no_hp_ortu`) VALUES
-	(30, '7A-001', 'a', 'L', 'test', '2007-02-02', 'Islam', 'test', '7A', NULL, '08123', 'test', 'test', '08123'),
-	(31, '7A-002', 'b', 'L', '', '2024-09-02', '', '', '7A', NULL, '', '', '', ''),
-	(32, '7A-003', 'c', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(33, '7A-004', 'd', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(34, '7A-005', 'e', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(35, '7A-006', 'f', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(36, '7A-007', 'g', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(37, '7A-008', 'h', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(38, '7A-009', 'i', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(39, '7A-010', 'j', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(40, '7A-011', 'k', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(41, '7A-012', 'l', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(42, '7A-013', 'm', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(43, '7A-014', 'n', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(44, '7A-015', 'o', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(45, '7A-016', 'p', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(46, '7A-017', 'q', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(47, '7A-018', 'r', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(48, '7A-019', 's', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(49, '7A-020', 't', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(50, '7A-021', 'u', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(51, '7A-022', 'v', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(52, '7A-023', 'w', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(53, '7A-024', 'x', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(54, '7A-025', 'y', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(55, '7A-026', 'z', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(56, '7A-027', 'aa', 'L', '', NULL, '', '', '7A', NULL, '', '', '', ''),
-	(57, '7A-028', 'aa', 'L', '', NULL, '', '', '7A', NULL, '', '', '', '');
+-- Dumping data for table bk_app.siswa: ~9 rows (approximately)
 
 -- Dumping structure for table bk_app.users
 CREATE TABLE IF NOT EXISTS `users` (
   `id_user` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `role` enum('admin','guru_bk') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'admin',
-  PRIMARY KEY (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `username` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` enum('admin','guru_bk') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'guru_bk',
+  `is_active` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_user`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bk_app.users: ~2 rows (approximately)
-INSERT INTO `users` (`id_user`, `username`, `password`, `role`) VALUES
-	(3, 'admin', 'e10adc3949ba59abbe56e057f20f883e', 'admin'),
-	(4, 'gurubk', 'e10adc3949ba59abbe56e057f20f883e', 'guru_bk');
+-- Dumping data for table bk_app.users: ~3 rows (approximately)
+INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `is_active`, `created_at`) VALUES
+	(1, 'admin', '$2y$10$X/gGiG11K6uvMcudi7vEXe2dudOvE9aVW.P91YOHWyfztiDQkVkIK', 'admin', 1, '2026-03-04 07:18:52'),
+	(2, 'taufik', '$2y$10$CAnFKbCflgPpFe83oZj44.2oP0WXESbS357eW.QRNzzhBYEIuY3.C', 'guru_bk', 1, '2026-03-04 07:56:47'),
+	(3, 'topik', '$2y$10$rbe4UdMP0YkaetGF.fgF7OTICMpKo4wrBAWNLKpBnPgNDfWB.zBEu', 'guru_bk', 1, '2026-03-05 04:01:51');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
